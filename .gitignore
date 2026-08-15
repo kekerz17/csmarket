@@ -13,3 +13,6 @@ client/vite.config.d.ts
 # sqlite
 server/prisma/*.db
 server/prisma/*.db-journal
+
+# stray curl cookie jars from local testing
+*cookies*.txt
