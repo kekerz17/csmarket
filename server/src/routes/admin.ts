@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { prisma } from '../db.js';
 import { env } from '../env.js';
 import { adminAuth } from '../middleware/adminAuth.js';
+import { authCookieOptions } from '../lib/cookies.js';
 import { getMarketPrice } from '../services/pricing.js';
 import { getBotStatus, getFloat } from '../services/tradeBot.js';
 
@@ -29,12 +30,12 @@ router.post('/login', async (req, res) => {
   }
 
   const token = jwt.sign({ role: 'admin' }, env.admin.jwtSecret, { expiresIn: '12h' });
-  res.cookie('admin_token', token, { httpOnly: true, sameSite: 'lax', maxAge: 12 * 60 * 60 * 1000 });
+  res.cookie('admin_token', token, authCookieOptions(12 * 60 * 60 * 1000));
   res.json({ ok: true });
 });
 
 router.post('/logout', (_req, res) => {
-  res.clearCookie('admin_token');
+  res.clearCookie('admin_token', authCookieOptions(0));
   res.json({ ok: true });
 });
 

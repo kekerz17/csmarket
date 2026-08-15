@@ -6,6 +6,7 @@ import { prisma } from '../db.js';
 import { env } from '../env.js';
 import { userAuth } from '../middleware/userAuth.js';
 import { steamTradeUrlSchema } from '../lib/validators.js';
+import { authCookieOptions } from '../lib/cookies.js';
 import passport from '../services/passport.js';
 
 const router = Router();
@@ -14,7 +15,7 @@ const USER_COOKIE_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 дней
 
 function issueSession(res: import('express').Response, userId: string) {
   const token = jwt.sign({ sub: userId }, env.user.jwtSecret, { expiresIn: '30d' });
-  res.cookie('user_token', token, { httpOnly: true, sameSite: 'lax', maxAge: USER_COOKIE_MAX_AGE });
+  res.cookie('user_token', token, authCookieOptions(USER_COOKIE_MAX_AGE));
 }
 
 if (env.steam.apiKey) {
@@ -66,7 +67,7 @@ if (env.steam.apiKey) {
 }
 
 router.post('/logout', (_req, res) => {
-  res.clearCookie('user_token');
+  res.clearCookie('user_token', authCookieOptions(0));
   res.json({ ok: true });
 });
 

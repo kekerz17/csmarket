@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { api, Item, User, getDiscountPercent, parseStickers } from '../api';
+import { api, API_ORIGIN, Item, User, getDiscountPercent, parseStickers } from '../api';
 import { categoryLabel } from '../components/CategorySidebar';
 import { useAuth } from '../context/AuthContext';
 
@@ -174,7 +174,7 @@ function BuyButton({
 
   if (!user) {
     return (
-      <a href="/api/auth/steam" className={buyClass + ' block text-center'}>
+      <a href={`${API_ORIGIN}/api/auth/steam`} className={buyClass + ' block text-center'}>
         Войти через Steam, чтобы купить
       </a>
     );

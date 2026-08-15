@@ -1,4 +1,10 @@
-const BASE = '/api';
+// В деплое фронтенд и бэкенд обычно живут на разных доменах (два отдельных
+// сервиса Render) — тогда относительный путь "/api" уйдёт на сам фронтенд, а
+// не на бэкенд. VITE_API_URL — полный адрес бэкенда, задаётся при билде
+// (Environment у Static Site в Render). Локально не задан — работает как
+// раньше, через прокси Vite (см. client/vite.config.ts).
+export const API_ORIGIN = import.meta.env.VITE_API_URL ?? '';
+const BASE = `${API_ORIGIN}/api`;
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {

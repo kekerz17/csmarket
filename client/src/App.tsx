@@ -8,6 +8,7 @@ import AdminLogin from './pages/admin/Login';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminOrders from './pages/admin/Orders';
 import { useAuth } from './context/AuthContext';
+import { API_ORIGIN } from './api';
 
 function HeaderAuth() {
   const { user, loading } = useAuth();
@@ -17,7 +18,7 @@ function HeaderAuth() {
   if (!user) {
     return (
       <a
-        href="/api/auth/steam"
+        href={`${API_ORIGIN}/api/auth/steam`}
         className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-neutral-950 font-semibold transition-all"
       >
         Войти через Steam
