@@ -112,16 +112,16 @@ export async function sendItem(orderId: string) {
   if (!order) return;
 
   if (!env.steam.configured || !manager) {
-    console.warn(`[DRY RUN] Симулируем отправку "${order.item.name}" на ${order.user.tradeUrl} (заказ ${order.id})`);
+    // Бот не настроен — вместо автоматической отправки заказ ждёт, пока
+    // продавец вручную отправит трейд и отметит это в админке
+    // (см. POST /api/admin/orders/:id/fulfill). Раньше тут была DRY_RUN-
+    // заглушка, которая молча "завершала" заказ — вводило в заблуждение
+    // на реальном сайте: покупатель видел "Завершено", ничего не получив.
+    console.warn(`[tradeBot] Бот не настроен — заказ ${order.id} ждёт ручной отправки продавцом`);
     await prisma.order.update({
       where: { id: order.id },
-      data: { status: 'TRADE_SENT', tradeOfferId: `dryrun_${order.id}` },
+      data: { status: 'AWAITING_MANUAL_FULFILLMENT' },
     });
-    setTimeout(async () => {
-      await prisma.order.update({ where: { id: order.id }, data: { status: 'COMPLETED' } });
-      await prisma.item.update({ where: { id: order.itemId }, data: { status: 'SOLD' } });
-      console.log(`[DRY RUN] Заказ ${order.id} помечен COMPLETED (симуляция принятия трейда)`);
-    }, 5000);
     return;
   }
 

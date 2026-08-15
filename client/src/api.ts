@@ -149,4 +149,6 @@ export const api = {
   adminRefreshFloat: (id: string) => request<Item>(`/admin/items/${id}/refresh-float`, { method: 'POST' }),
   adminListOrders: () => request<Order[]>('/admin/orders'),
   adminBotStatus: () => request<BotStatus>('/admin/bot-status'),
+  adminFulfillOrder: (id: string, action: 'sent' | 'completed' | 'failed') =>
+    request<Order>(`/admin/orders/${id}/fulfill`, { method: 'POST', body: JSON.stringify({ action }) }),
 };

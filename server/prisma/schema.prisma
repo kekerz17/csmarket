@@ -73,9 +73,11 @@ model Deposit {
   updatedAt            DateTime @updatedAt
 }
 
-// status: PAID | TRADE_SENT | COMPLETED | FAILED
+// status: PAID | AWAITING_MANUAL_FULFILLMENT | TRADE_SENT | COMPLETED | FAILED
 // Оплата атомарна (баланс списывается в момент создания заказа), поэтому
 // отдельного состояния "ожидание оплаты" тут больше нет — оно у Deposit.
+// AWAITING_MANUAL_FULFILLMENT — бот не настроен, продавец отправляет трейд
+// вручную и сам продвигает статус через админку (POST /admin/orders/:id/fulfill).
 model Order {
   id                   String   @id @default(cuid())
   item                 Item     @relation(fields: [itemId], references: [id])

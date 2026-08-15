@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api, Order } from '../api';
 
-const STEPS = ['PAID', 'TRADE_SENT', 'COMPLETED'];
+const STEPS = ['PAID', 'AWAITING_MANUAL_FULFILLMENT', 'TRADE_SENT', 'COMPLETED'];
 const LABELS: Record<string, string> = {
   PAID: 'Оплачено',
+  AWAITING_MANUAL_FULFILLMENT: 'Продавец готовит трейд',
   TRADE_SENT: 'Трейд отправлен',
   COMPLETED: 'Завершено',
   FAILED: 'Ошибка',
@@ -89,6 +90,12 @@ export default function OrderStatus() {
                 );
               })}
             </ol>
+            {order.status === 'AWAITING_MANUAL_FULFILLMENT' && (
+              <div className="mt-6 text-xs text-neutral-500 bg-neutral-950/60 rounded-lg p-3 border border-white/5">
+                Продавец отправляет трейд-офферы вручную — это может занять некоторое время. Проверьте уведомления в
+                Steam чуть позже.
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -108,6 +108,53 @@ router.get('/orders', async (_req, res) => {
   res.json(orders);
 });
 
+const ACTIVE_ORDER_STATUSES = ['AWAITING_MANUAL_FULFILLMENT', 'TRADE_SENT'];
+
+router.post('/orders/:id/fulfill', async (req, res) => {
+  const parsed = z.object({ action: z.enum(['sent', 'completed', 'failed']) }).safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.flatten() });
+    return;
+  }
+
+  const order = await prisma.order.findUnique({ where: { id: req.params.id } });
+  if (!order) {
+    res.status(404).json({ error: 'Не найдено' });
+    return;
+  }
+  if (!ACTIVE_ORDER_STATUSES.includes(order.status)) {
+    res.status(409).json({ error: `Заказ уже в статусе ${order.status} — действие недоступно` });
+    return;
+  }
+
+  if (parsed.data.action === 'sent') {
+    const updated = await prisma.order.update({ where: { id: order.id }, data: { status: 'TRADE_SENT' } });
+    res.json(updated);
+    return;
+  }
+
+  if (parsed.data.action === 'completed') {
+    const [updated] = await prisma.$transaction([
+      prisma.order.update({ where: { id: order.id }, data: { status: 'COMPLETED' } }),
+      prisma.item.update({ where: { id: order.itemId }, data: { status: 'SOLD' } }),
+    ]);
+    res.json(updated);
+    return;
+  }
+
+  // action === 'failed' — возвращаем деньги на баланс и предмет в продажу,
+  // ровно так же, как при автоматическом провале трейда у бота.
+  const [updated] = await prisma.$transaction([
+    prisma.order.update({
+      where: { id: order.id },
+      data: { status: 'FAILED', failureReason: 'Отмечено продавцом вручную' },
+    }),
+    prisma.item.update({ where: { id: order.itemId }, data: { status: 'AVAILABLE' } }),
+    prisma.user.update({ where: { id: order.userId }, data: { balanceUsd: { increment: order.priceUsd } } }),
+  ]);
+  res.json(updated);
+});
+
 router.get('/bot-status', (_req, res) => {
   res.json(getBotStatus());
 });

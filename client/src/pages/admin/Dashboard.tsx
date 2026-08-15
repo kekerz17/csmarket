@@ -51,7 +51,7 @@ export default function AdminDashboard() {
               bot?.online ? 'border-emerald-700 text-emerald-400' : 'border-neutral-700 text-neutral-400'
             }`}
           >
-            Бот: {bot?.dryRun ? 'DRY RUN' : bot?.online ? 'онлайн' : 'офлайн'}
+            Бот: {bot?.dryRun ? 'не настроен — ручная выдача' : bot?.online ? 'онлайн' : 'офлайн'}
           </span>
           <Link to="/admin/orders" className="text-sm text-neutral-400 hover:text-neutral-200">
             Заказы →
