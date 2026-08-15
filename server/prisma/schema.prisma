@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// status: AVAILABLE | RESERVED | SOLD | REMOVED
+model Item {
+  id                   String   @id @default(cuid())
+  assetId              String   @unique
+  classId              String
+  instanceId           String
+  marketHashName       String
+  name                 String
+  iconUrl              String
+  exterior             String?
+  // Тип предмета из тега Steam "Type": Rifle, Pistol, SMG, Sniper Rifle,
+  // Shotgun, Machinegun, Knife, Sticker, Collectible, Graffiti, Music Kit...
+  category             String?
+  // Редкость из тега Steam "Rarity" (Consumer Grade, Mil-Spec, Covert...)
+  // и её hex-цвет — Steam присылает цвет напрямую, ничего не подбираем сами.
+  rarity               String?
+  rarityColor          String?
+  tradable             Boolean  @default(true)
+  marketable           Boolean  @default(true)
+  floatValue           Float?
+  // "gc" — реальный float с Game Coordinator, "simulated" — DRY_RUN-заглушка
+  // (бот не подключен). Нужно, чтобы никогда не показать фейковое значение
+  // как настоящее — это вводит покупателей в заблуждение при реальной цене.
+  floatSource          String?
+  // JSON-массив [{slot, name, iconUrl}] наклеек, наклеенных на предмет.
+  // Обычная строка вместо Json-типа Prisma — проще для sqlite, сериализуем вручную.
+  stickersJson         String?
+  priceUsd             Float?
+  suggestedMarketPrice Float?
+  listed               Boolean  @default(false)
+  status               String   @default("AVAILABLE")
+  lastSeenAt           DateTime @updatedAt
+  createdAt            DateTime @default(now())
+  orders               Order[]
+}
+
+// Покупатель, авторизованный через Steam OpenID. tradeUrl задаётся один раз
+// в профиле — Steam-логин сам по себе trade-ссылку не даёт.
+model User {
+  id          String    @id @default(cuid())
+  steamId64   String    @unique
+  personaName String
+  avatarUrl   String
+  tradeUrl    String?
+  balanceUsd  Float     @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  orders      Order[]
+  deposits    Deposit[]
+}
+
+// status: PENDING | COMPLETED | FAILED | EXPIRED
+// Пополнение баланса через NOWPayments — отдельно от заказов на конкретный
+// предмет, ровно так же, как в реальных маркетплейсах со "кошельком".
+model Deposit {
+  id                   String   @id @default(cuid())
+  user                 User     @relation(fields: [userId], references: [id])
+  userId               String
+  amountUsd            Float
+  status               String   @default("PENDING")
+  nowpaymentsInvoiceId String?
+  nowpaymentsPaymentId String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+// status: PAID | TRADE_SENT | COMPLETED | FAILED
+// Оплата атомарна (баланс списывается в момент создания заказа), поэтому
+// отдельного состояния "ожидание оплаты" тут больше нет — оно у Deposit.
+model Order {
+  id                   String   @id @default(cuid())
+  item                 Item     @relation(fields: [itemId], references: [id])
+  itemId               String
+  user                 User     @relation(fields: [userId], references: [id])
+  userId               String
+  priceUsd             Float
+  status               String   @default("PAID")
+  tradeOfferId         String?
+  failureReason        String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
