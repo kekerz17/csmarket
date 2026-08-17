@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
   };
 
   if (search) {
-    where.name = { contains: String(search) };
+    where.name = { contains: String(search), mode: 'insensitive' };
   }
   if (category) {
     where.category = String(category);
