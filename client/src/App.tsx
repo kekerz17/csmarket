@@ -117,9 +117,6 @@ export default function App() {
           </Link>
           <div className="flex items-center gap-4">
             <CurrencySelector />
-            <Link to="/admin" className="hidden sm:inline text-xs text-neutral-600 hover:text-neutral-400 transition-colors">
-              Админ
-            </Link>
             <HeaderAuth />
           </div>
         </div>
