@@ -120,7 +120,7 @@ export default function Profile() {
             disabled={depositLoading}
             className="rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 disabled:opacity-50 px-4 py-2.5 text-sm font-semibold text-neutral-950 transition-all"
           >
-            {depositLoading ? 'Создаём счёт...' : 'Пополнить в USDT'}
+            {depositLoading ? 'Создаём счёт...' : 'Пополнить баланс'}
           </button>
         </form>
         <p className="text-xs text-neutral-600 mt-2">
