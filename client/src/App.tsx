@@ -5,6 +5,7 @@ import ItemDetail from './pages/ItemDetail';
 import Profile from './pages/Profile';
 import OrderStatus from './pages/OrderStatus';
 import DepositStatus from './pages/DepositStatus';
+import Faq from './pages/Faq';
 import AdminLogin from './pages/admin/Login';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminOrders from './pages/admin/Orders';
@@ -110,6 +111,7 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/order/:id" element={<OrderStatus />} />
           <Route path="/deposit/:id" element={<DepositStatus />} />
+          <Route path="/faq" element={<Faq />} />
           <Route path="/admin" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/orders" element={<AdminOrders />} />
@@ -117,9 +119,12 @@ export default function App() {
       </main>
 
       <footer className="border-t border-white/5 mt-12">
-        <div className="max-w-6xl mx-auto px-6 py-6 text-xs text-neutral-600 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div className="max-w-6xl mx-auto px-6 py-6 text-xs text-neutral-600 flex flex-col sm:flex-row items-center justify-between gap-3">
           <span>Girgich Store — предметы из личного инвентаря Steam</span>
           <span>Выдача автоматическая, трейд-холд зависит от настроек вашего аккаунта Steam</span>
+          <Link to="/faq" className="text-neutral-400 hover:text-emerald-400 transition-colors shrink-0">
+            FAQ
+          </Link>
         </div>
       </footer>
     </div>
