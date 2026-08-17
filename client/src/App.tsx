@@ -147,6 +147,9 @@ export default function App() {
             <Link to="/faq" className="text-neutral-400 hover:text-emerald-400 transition-colors">
               FAQ
             </Link>
+            <Link to="/admin" className="text-neutral-700 hover:text-neutral-400 transition-colors">
+              Админ
+            </Link>
           </div>
         </div>
       </footer>
