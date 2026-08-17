@@ -103,6 +103,11 @@ export interface CategoryCount {
   count: number;
 }
 
+export interface ExchangeRates {
+  RUB: number;
+  EUR: number;
+}
+
 export const api = {
   listItems: (params?: { search?: string; minPrice?: number; maxPrice?: number; category?: string }) => {
     const qs = new URLSearchParams();
@@ -114,6 +119,7 @@ export const api = {
     return request<Item[]>(`/items${suffix}`);
   },
   listCategories: () => request<CategoryCount[]>('/items/meta/categories'),
+  getExchangeRates: () => request<ExchangeRates>('/settings/exchange-rates'),
   getItem: (assetId: string) => request<Item>(`/items/${assetId}`),
   getOrder: (id: string) => request<Order>(`/orders/${id}`),
 
@@ -151,4 +157,7 @@ export const api = {
   adminBotStatus: () => request<BotStatus>('/admin/bot-status'),
   adminFulfillOrder: (id: string, action: 'sent' | 'completed' | 'failed') =>
     request<Order>(`/admin/orders/${id}/fulfill`, { method: 'POST', body: JSON.stringify({ action }) }),
+  adminGetExchangeRates: () => request<ExchangeRates>('/admin/settings/exchange-rates'),
+  adminSetExchangeRates: (rates: ExchangeRates) =>
+    request<ExchangeRates>('/admin/settings/exchange-rates', { method: 'PATCH', body: JSON.stringify(rates) }),
 };

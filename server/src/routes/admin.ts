@@ -8,6 +8,7 @@ import { adminAuth } from '../middleware/adminAuth.js';
 import { authCookieOptions } from '../lib/cookies.js';
 import { getMarketPrice } from '../services/pricing.js';
 import { getBotStatus, getFloat } from '../services/tradeBot.js';
+import { getExchangeRates, setExchangeRates } from '../lib/settings.js';
 
 const router = Router();
 
@@ -157,6 +158,20 @@ router.post('/orders/:id/fulfill', async (req, res) => {
 
 router.get('/bot-status', (_req, res) => {
   res.json(getBotStatus());
+});
+
+router.get('/settings/exchange-rates', async (_req, res) => {
+  res.json(await getExchangeRates());
+});
+
+router.patch('/settings/exchange-rates', async (req, res) => {
+  const parsed = z.object({ RUB: z.number().positive(), EUR: z.number().positive() }).safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.flatten() });
+    return;
+  }
+  await setExchangeRates(parsed.data);
+  res.json(parsed.data);
 });
 
 export default router;

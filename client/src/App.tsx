@@ -10,10 +10,33 @@ import AdminLogin from './pages/admin/Login';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminOrders from './pages/admin/Orders';
 import { useAuth } from './context/AuthContext';
+import { useCurrency, type Currency } from './context/CurrencyContext';
 import { api, API_ORIGIN } from './api';
+
+function CurrencySelector() {
+  const { currency, setCurrency } = useCurrency();
+  return (
+    <select
+      value={currency}
+      onChange={(e) => setCurrency(e.target.value as Currency)}
+      className="bg-transparent text-neutral-400 hover:text-neutral-200 text-sm border border-white/10 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-emerald-500/60 cursor-pointer"
+    >
+      <option className="bg-neutral-900" value="USD">
+        $ USD
+      </option>
+      <option className="bg-neutral-900" value="RUB">
+        ₽ RUB
+      </option>
+      <option className="bg-neutral-900" value="EUR">
+        € EUR
+      </option>
+    </select>
+  );
+}
 
 function HeaderAuth() {
   const { user, loading, refresh } = useAuth();
+  const { format } = useCurrency();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -50,7 +73,7 @@ function HeaderAuth() {
   return (
     <div className="relative" ref={menuRef}>
       <button onClick={() => setOpen((v) => !v)} className="flex items-center gap-2.5 group">
-        <span className="text-sm text-emerald-400 font-semibold">${user.balanceUsd.toFixed(2)}</span>
+        <span className="text-sm text-emerald-400 font-semibold">{format(user.balanceUsd)}</span>
         <img
           src={user.avatarUrl}
           alt=""
@@ -95,7 +118,8 @@ export default function App() {
               Girgich Store
             </span>
           </Link>
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-4">
+            <CurrencySelector />
             <Link to="/admin" className="hidden sm:inline text-xs text-neutral-600 hover:text-neutral-400 transition-colors">
               Админ
             </Link>

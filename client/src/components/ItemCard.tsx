@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
 import type { Item } from '../api';
 import { getDiscountPercent, parseStickers } from '../api';
+import { useCurrency } from '../context/CurrencyContext';
 
 export default function ItemCard({ item }: { item: Item }) {
+  const { format } = useCurrency();
   const rarity = item.rarityColor ? `#${item.rarityColor}` : '#3f3f46';
   const stickerCount = parseStickers(item).length;
   const discount = getDiscountPercent(item);
@@ -61,9 +63,9 @@ export default function ItemCard({ item }: { item: Item }) {
 
       <div className="mt-3 flex items-center justify-between">
         <span className="flex items-baseline gap-1.5">
-          <span className="text-base font-semibold text-neutral-50">${item.priceUsd?.toFixed(2)}</span>
+          <span className="text-base font-semibold text-neutral-50">{format(item.priceUsd)}</span>
           {discount != null && (
-            <span className="text-xs text-neutral-600 line-through">${item.suggestedMarketPrice!.toFixed(2)}</span>
+            <span className="text-xs text-neutral-600 line-through">{format(item.suggestedMarketPrice)}</span>
           )}
         </span>
         <span

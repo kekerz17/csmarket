@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api, Order } from '../api';
 import { useAuth } from '../context/AuthContext';
+import { useCurrency } from '../context/CurrencyContext';
 
 const inputClass =
   'w-full rounded-lg bg-neutral-950 border border-white/10 px-3 py-2.5 text-sm placeholder:text-neutral-600 focus:outline-none focus:ring-1 focus:ring-emerald-500/60 focus:border-emerald-500/60 transition-colors';
@@ -15,6 +16,7 @@ const ORDER_STATUS_LABELS: Record<string, string> = {
 
 export default function Profile() {
   const { user, loading, refresh } = useAuth();
+  const { format, currency } = useCurrency();
   const navigate = useNavigate();
 
   const [tradeUrl, setTradeUrl] = useState('');
@@ -101,10 +103,10 @@ export default function Profile() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <div className="text-xs text-neutral-500 uppercase tracking-wide mb-1">Баланс</div>
-            <div className="text-3xl font-bold text-emerald-400">${user.balanceUsd.toFixed(2)}</div>
+            <div className="text-3xl font-bold text-emerald-400">{format(user.balanceUsd)}</div>
           </div>
         </div>
-        <form onSubmit={submitDeposit} className="flex gap-2">
+        <form onSubmit={submitDeposit} className="flex gap-2 items-center">
           <input
             type="number"
             min={1}
@@ -121,6 +123,10 @@ export default function Profile() {
             {depositLoading ? 'Создаём счёт...' : 'Пополнить в USDT'}
           </button>
         </form>
+        <p className="text-xs text-neutral-600 mt-2">
+          Сумма всегда в USD/USDT — пополнение и баланс не зависят от выбранной валюты отображения.
+          {currency !== 'USD' && Number(depositAmount) > 0 && <> ≈ {format(Number(depositAmount))}</>}
+        </p>
         {depositError && <div className="text-sm text-red-400 mt-2">{depositError}</div>}
       </div>
 
@@ -169,7 +175,7 @@ export default function Profile() {
                   <img src={o.item.iconUrl} className="w-8 h-8 object-contain" alt="" />
                   {o.item.name}
                 </span>
-                <span>${o.priceUsd.toFixed(2)}</span>
+                <span>{format(o.priceUsd)}</span>
                 <span>{ORDER_STATUS_LABELS[o.status] ?? o.status}</span>
               </div>
             ))}

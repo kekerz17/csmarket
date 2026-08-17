@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { api, API_ORIGIN, Item, User, getDiscountPercent, parseStickers } from '../api';
 import { categoryLabel } from '../components/CategorySidebar';
 import { useAuth } from '../context/AuthContext';
+import { useCurrency } from '../context/CurrencyContext';
 
 export default function ItemDetail() {
   const { assetId } = useParams<{ assetId: string }>();
@@ -11,6 +12,7 @@ export default function ItemDetail() {
   const [buyError, setBuyError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const { format } = useCurrency();
 
   useEffect(() => {
     if (!assetId) return;
@@ -113,11 +115,11 @@ export default function ItemDetail() {
 
           <div className="rounded-xl border border-white/5 bg-neutral-900/60 p-5 mt-6">
             <div className="flex items-baseline gap-2 mb-4 flex-wrap">
-              <span className="text-3xl font-bold">${item.priceUsd?.toFixed(2)}</span>
-              <span className="text-xs text-neutral-500">в USDT</span>
+              <span className="text-3xl font-bold">{format(item.priceUsd)}</span>
+              <span className="text-xs text-neutral-500">оплата в USDT</span>
               {discount != null && (
                 <>
-                  <span className="text-sm text-neutral-600 line-through">${item.suggestedMarketPrice!.toFixed(2)}</span>
+                  <span className="text-sm text-neutral-600 line-through">{format(item.suggestedMarketPrice)}</span>
                   <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-rose-500 text-white">
                     -{discount}% от рынка
                   </span>
@@ -163,6 +165,7 @@ function BuyButton({
   buying: boolean;
   onBuy: () => void;
 }) {
+  const { format } = useCurrency();
   const baseClass =
     'w-full rounded-lg py-3 font-semibold transition-all shadow-lg disabled:cursor-not-allowed disabled:opacity-60';
   const buyClass = `${baseClass} bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-neutral-950 shadow-emerald-500/10`;
@@ -198,7 +201,7 @@ function BuyButton({
 
   return (
     <button onClick={onBuy} disabled={buying} className={buyClass}>
-      {buying ? 'Покупаем...' : `Купить за $${item.priceUsd?.toFixed(2)}`}
+      {buying ? 'Покупаем...' : `Купить за ${format(item.priceUsd)}`}
     </button>
   );
 }

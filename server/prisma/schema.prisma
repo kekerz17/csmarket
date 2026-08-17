@@ -73,6 +73,14 @@ model Deposit {
   updatedAt            DateTime @updatedAt
 }
 
+// Простое хранилище настроек сайта в виде ключ-значение (например, курсы
+// валют для отображения цен) — чтобы админ мог менять их без редеплоя.
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
 // status: PAID | AWAITING_MANUAL_FULFILLMENT | TRADE_SENT | COMPLETED | FAILED
 // Оплата атомарна (баланс списывается в момент создания заказа), поэтому
 // отдельного состояния "ожидание оплаты" тут больше нет — оно у Deposit.

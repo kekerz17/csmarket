@@ -1,6 +1,60 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { api, Item, BotStatus, getDiscountPercent, parseStickers } from '../../api';
+import { api, Item, BotStatus, ExchangeRates, getDiscountPercent, parseStickers } from '../../api';
+
+function ExchangeRateSettings() {
+  const [rates, setRates] = useState<ExchangeRates | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    api.adminGetExchangeRates().then(setRates).catch(console.error);
+  }, []);
+
+  async function save() {
+    if (!rates) return;
+    setSaved(false);
+    await api.adminSetExchangeRates(rates);
+    setSaved(true);
+  }
+
+  if (!rates) return null;
+
+  return (
+    <div className="rounded-xl border border-white/5 bg-neutral-900/60 p-4 mb-6 flex items-center gap-4 text-sm">
+      <span className="text-neutral-400">Курс (за 1 USD):</span>
+      <label className="flex items-center gap-1.5">
+        ₽
+        <input
+          type="number"
+          step="0.01"
+          value={rates.RUB}
+          onChange={(e) => {
+            setSaved(false);
+            setRates({ ...rates, RUB: Number(e.target.value) });
+          }}
+          className="w-20 rounded bg-neutral-950 border border-neutral-800 px-2 py-1"
+        />
+      </label>
+      <label className="flex items-center gap-1.5">
+        €
+        <input
+          type="number"
+          step="0.01"
+          value={rates.EUR}
+          onChange={(e) => {
+            setSaved(false);
+            setRates({ ...rates, EUR: Number(e.target.value) });
+          }}
+          className="w-20 rounded bg-neutral-950 border border-neutral-800 px-2 py-1"
+        />
+      </label>
+      <button onClick={save} className="text-xs px-3 py-1.5 rounded bg-neutral-800 hover:bg-neutral-700">
+        Сохранить
+      </button>
+      {saved && <span className="text-emerald-400 text-xs">Сохранено</span>}
+    </div>
+  );
+}
 
 export default function AdminDashboard() {
   const [items, setItems] = useState<Item[]>([]);
@@ -58,6 +112,9 @@ export default function AdminDashboard() {
           </Link>
         </div>
       </div>
+
+      <ExchangeRateSettings />
+
       <table className="w-full text-sm">
         <thead className="text-neutral-400 text-left">
           <tr>

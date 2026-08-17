@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api, Order } from '../api';
+import { useCurrency } from '../context/CurrencyContext';
 
 const STEPS = ['PAID', 'AWAITING_MANUAL_FULFILLMENT', 'TRADE_SENT', 'COMPLETED'];
 const LABELS: Record<string, string> = {
@@ -14,6 +15,7 @@ const LABELS: Record<string, string> = {
 export default function OrderStatus() {
   const { id } = useParams<{ id: string }>();
   const [order, setOrder] = useState<Order | null>(null);
+  const { format } = useCurrency();
 
   useEffect(() => {
     if (!id) return;
@@ -54,7 +56,7 @@ export default function OrderStatus() {
           )}
           <div>
             <div className="font-medium">{order.item?.name}</div>
-            <div className="text-neutral-400 text-sm">${order.priceUsd.toFixed(2)}</div>
+            <div className="text-neutral-400 text-sm">{format(order.priceUsd)}</div>
           </div>
         </div>
 

@@ -11,6 +11,7 @@ import adminRouter from './routes/admin.js';
 import authRouter from './routes/auth.js';
 import depositsRouter from './routes/deposits.js';
 import purchasesRouter from './routes/purchases.js';
+import settingsRouter from './routes/settings.js';
 import { startInventorySync } from './services/inventorySync.js';
 import { startBot } from './services/tradeBot.js';
 import { startDepositExpiryWatcher } from './services/depositExpiry.js';
@@ -35,6 +36,7 @@ app.use('/api/admin', adminRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/deposits', depositsRouter);
 app.use('/api/purchases', purchasesRouter);
+app.use('/api/settings', settingsRouter);
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api, Deposit } from '../api';
 import { useAuth } from '../context/AuthContext';
+import { useCurrency } from '../context/CurrencyContext';
 
 const LABELS: Record<string, string> = {
   PENDING: 'Ожидание оплаты',
@@ -14,6 +15,7 @@ export default function DepositStatus() {
   const { id } = useParams<{ id: string }>();
   const [deposit, setDeposit] = useState<Deposit | null>(null);
   const { refresh } = useAuth();
+  const { format } = useCurrency();
 
   useEffect(() => {
     if (!id) return;
@@ -42,7 +44,7 @@ export default function DepositStatus() {
       </Link>
 
       <div className="rounded-2xl border border-white/5 bg-neutral-900/60 p-6 mt-4 text-center">
-        <div className="text-3xl font-bold mb-1">${deposit.amountUsd.toFixed(2)}</div>
+        <div className="text-3xl font-bold mb-1">{format(deposit.amountUsd)}</div>
         <div className="text-xs text-neutral-500 mb-6">пополнение баланса в USDT</div>
 
         {isDone ? (
