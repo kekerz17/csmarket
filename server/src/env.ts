@@ -7,7 +7,10 @@ export const env = {
   clientUrl: process.env.CLIENT_URL ?? 'http://localhost:5173',
   publicApiUrl: process.env.PUBLIC_API_URL ?? `http://localhost:${port}`,
   steamOwnerId64: process.env.STEAM_OWNER_ID64 ?? '76561199144809767',
-  inventorySyncIntervalMs: Number(process.env.INVENTORY_SYNC_INTERVAL_MS ?? 5 * 60 * 1000),
+  // По умолчанию раз в сутки — синхронизация чаще нужна редко (инвентарь
+  // продавца не меняется поминутно), а более частые опросы Steam увеличивают
+  // риск временных 429 от Steam на нестабильных/дата-центровых IP.
+  inventorySyncIntervalMs: Number(process.env.INVENTORY_SYNC_INTERVAL_MS ?? 24 * 60 * 60 * 1000),
   // Через сколько минут неоплаченный депозит (пополнение баланса) считается
   // просроченным. Заказы больше не ждут оплату — оплата атомарна за счёт баланса.
   depositReservationMinutes: Number(process.env.DEPOSIT_RESERVATION_MINUTES ?? 30),

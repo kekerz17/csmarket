@@ -163,13 +163,39 @@ export async function syncInventoryOnce() {
     });
   }
 
-  const missing = await prisma.item.findMany({
-    where: { status: 'AVAILABLE', assetId: { notIn: seenAssetIds } },
-  });
+  // Если ранее "пропавший" предмет снова появился в инвентаре (например,
+  // его вернули после трейда или предыдущий прогон синхронизации ошибочно
+  // снял его с продажи из-за неполного ответа Steam) — возвращаем статус
+  // автоматически, без вмешательства админа.
+  if (seenAssetIds.length > 0) {
+    await prisma.item.updateMany({
+      where: { assetId: { in: seenAssetIds }, status: 'REMOVED' },
+      data: { status: 'AVAILABLE' },
+    });
+  }
 
-  for (const item of missing) {
-    await prisma.item.update({ where: { id: item.id }, data: { status: 'REMOVED', listed: false } });
-    console.log(`[inventorySync] ${item.marketHashName} (${item.assetId}) больше не в инвентаре — снят с продажи`);
+  const currentAvailableCount = await prisma.item.count({ where: { status: 'AVAILABLE' } });
+
+  // Защита от затирания витрины на неполном/флейки ответе Steam — например,
+  // временный 429 на части страниц пагинации. Если увидели заметно меньше
+  // товаров, чем сейчас числится доступными, этот прогон считаем ненадёжным
+  // и НЕ снимаем ничего с продажи: лучше показать чуть устаревшие данные,
+  // чем ошибочно убрать реальные товары с витрины.
+  const seemsUnreliable = currentAvailableCount > 0 && seenAssetIds.length < currentAvailableCount * 0.5;
+
+  if (seemsUnreliable) {
+    console.warn(
+      `[inventorySync] Похоже на неполный ответ Steam (видно ${seenAssetIds.length} из ${currentAvailableCount} доступных товаров) — пропускаю снятие "пропавших" предметов в этот раз`,
+    );
+  } else {
+    const missing = await prisma.item.findMany({
+      where: { status: 'AVAILABLE', assetId: { notIn: seenAssetIds } },
+    });
+
+    for (const item of missing) {
+      await prisma.item.update({ where: { id: item.id }, data: { status: 'REMOVED', listed: false } });
+      console.log(`[inventorySync] ${item.marketHashName} (${item.assetId}) больше не в инвентаре — снят с продажи`);
+    }
   }
 
   console.log(`[inventorySync] Синхронизировано предметов: ${seenAssetIds.length}`);
