@@ -13,9 +13,10 @@ const router = Router();
 
 const USER_COOKIE_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 дней
 
-function issueSession(res: import('express').Response, userId: string) {
+function issueSession(res: import('express').Response, userId: string): string {
   const token = jwt.sign({ sub: userId }, env.user.jwtSecret, { expiresIn: '30d' });
   res.cookie('user_token', token, authCookieOptions(USER_COOKIE_MAX_AGE));
+  return token;
 }
 
 if (env.steam.apiKey) {
@@ -36,8 +37,12 @@ if (env.steam.apiKey) {
         update: { personaName, avatarUrl },
       });
 
-      issueSession(res, user.id);
-      res.redirect(`${env.clientUrl}/profile`);
+      const token = issueSession(res, user.id);
+      // Токен дублируем во фрагменте URL (после #) — он не уходит на сервер
+      // и не попадает в логи/Referer, но фронтенд может забрать его на
+      // клиенте и сохранить в localStorage. Это запасной канал на случай,
+      // если браузер блокирует саму cross-site cookie (см. userAuth.ts).
+      res.redirect(`${env.clientUrl}/profile#token=${token}`);
     },
   );
 } else {

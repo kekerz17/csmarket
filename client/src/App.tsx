@@ -11,7 +11,7 @@ import AdminDashboard from './pages/admin/Dashboard';
 import AdminOrders from './pages/admin/Orders';
 import { useAuth } from './context/AuthContext';
 import { useCurrency, type Currency } from './context/CurrencyContext';
-import { api, API_ORIGIN } from './api';
+import { api, API_ORIGIN, clearUserToken } from './api';
 
 function CurrencySelector() {
   const { currency, setCurrency } = useCurrency();
@@ -66,6 +66,7 @@ function HeaderAuth() {
   async function logout() {
     setOpen(false);
     await api.logout().catch(() => {});
+    clearUserToken();
     refresh();
     navigate('/');
   }

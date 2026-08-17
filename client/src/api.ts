@@ -6,10 +6,22 @@
 export const API_ORIGIN = import.meta.env.VITE_API_URL ?? '';
 const BASE = `${API_ORIGIN}/api`;
 
+// Запасной канал авторизации в дополнение к cookie — см. userAuth.ts на
+// бэкенде: часть браузеров блокирует cross-site cookie между доменами
+// фронтенда и бэкенда, а localStorage + заголовок Authorization это обходит.
+const TOKEN_KEY = 'user_token';
+export const getUserToken = () => localStorage.getItem(TOKEN_KEY);
+export const setUserToken = (token: string) => localStorage.setItem(TOKEN_KEY, token);
+export const clearUserToken = () => localStorage.removeItem(TOKEN_KEY);
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = getUserToken();
   const res = await fetch(`${BASE}${path}`, {
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     ...options,
   });
   if (!res.ok) {
