@@ -60,7 +60,7 @@ export default function Home() {
       <div className="mb-8 rounded-2xl border border-white/5 bg-gradient-to-br from-neutral-900 via-neutral-900 to-neutral-950 p-6 sm:p-8 overflow-hidden relative">
         <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-emerald-500/10 blur-3xl" />
         <div className="relative">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2">Скины CS2 напрямую от владельца</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2">Скины CS2 по лучшим ценам</h1>
           <p className="text-neutral-400 max-w-xl text-sm sm:text-base">
             Мгновенная автоматическая выдача трейд-оффером, оплата в USDT.{' '}
             {totalCount > 0 && (
