@@ -21,10 +21,14 @@ router.post('/', async (req, res) => {
     data: { userId: req.userId!, amountUsd: parsed.data.amountUsd, status: 'PENDING' },
   });
 
-  const invoice = await createInvoice({ id: deposit.id, priceUsd: deposit.amountUsd });
-  await prisma.deposit.update({ where: { id: deposit.id }, data: { nowpaymentsInvoiceId: invoice.id } });
-
-  res.status(201).json({ depositId: deposit.id, invoiceUrl: invoice.invoice_url, dryRun: invoice.dryRun ?? false });
+  try {
+    const invoice = await createInvoice({ id: deposit.id, priceUsd: deposit.amountUsd });
+    await prisma.deposit.update({ where: { id: deposit.id }, data: { nowpaymentsInvoiceId: invoice.id } });
+    res.status(201).json({ depositId: deposit.id, invoiceUrl: invoice.invoice_url, dryRun: invoice.dryRun ?? false });
+  } catch (err: any) {
+    await prisma.deposit.update({ where: { id: deposit.id }, data: { status: 'FAILED' } });
+    res.status(502).json({ error: err.message ?? 'Не удалось создать счёт на оплату' });
+  }
 });
 
 router.get('/:id', async (req, res) => {

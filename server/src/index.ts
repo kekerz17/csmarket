@@ -16,6 +16,19 @@ import { startInventorySync } from './services/inventorySync.js';
 import { startBot } from './services/tradeBot.js';
 import { startDepositExpiryWatcher } from './services/depositExpiry.js';
 
+// Страховка: без этого одна необработанная ошибка промиса (например, сбой
+// сети при обращении к NOWPayments/Steam) по умолчанию в Node 15+ убивает
+// весь процесс сервера — падает вообще всё (каталог, логин, покупки), а не
+// только тот один запрос, который не повезло обработать. Ошибку логируем,
+// но процесс не завершаем — конкретные роуты по-прежнему должны сами ловить
+// свои ошибки try/catch (это лишь последний рубеж, а не замена этому).
+process.on('unhandledRejection', (reason) => {
+  console.error('[server] Необработанный reject промиса:', reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('[server] Необработанное исключение:', err);
+});
+
 const app = express();
 
 app.use(cors({ origin: env.clientUrl, credentials: true }));

@@ -23,27 +23,36 @@ export async function createInvoice(order: OrderLike): Promise<InvoiceResult> {
     };
   }
 
-  const { data } = await axios.post(
-    `${env.nowPayments.baseUrl}/invoice`,
-    {
-      price_amount: order.priceUsd,
-      price_currency: 'usd',
-      pay_currency: 'usdt',
-      order_id: order.id,
-      order_description: `Girgich Store — заказ ${order.id}`,
-      ipn_callback_url: `${env.publicApiUrl}/api/webhooks/nowpayments`,
-      success_url: `${env.clientUrl}/order/${order.id}`,
-      cancel_url: `${env.clientUrl}/order/${order.id}`,
-    },
-    {
-      headers: {
-        'x-api-key': env.nowPayments.apiKey!,
-        'Content-Type': 'application/json',
+  try {
+    const { data } = await axios.post(
+      `${env.nowPayments.baseUrl}/invoice`,
+      {
+        price_amount: order.priceUsd,
+        price_currency: 'usd',
+        pay_currency: 'usdt',
+        order_id: order.id,
+        order_description: `Girgich Store — заказ ${order.id}`,
+        ipn_callback_url: `${env.publicApiUrl}/api/webhooks/nowpayments`,
+        success_url: `${env.clientUrl}/order/${order.id}`,
+        cancel_url: `${env.clientUrl}/order/${order.id}`,
       },
-    },
-  );
+      {
+        headers: {
+          'x-api-key': env.nowPayments.apiKey!,
+          'Content-Type': 'application/json',
+        },
+        timeout: 15000,
+      },
+    );
 
-  return data;
+    return data;
+  } catch (err: any) {
+    // Сетевая/TLS-ошибка сюда не долетит как обычный reject без явного
+    // catch — а без него один сбой запроса к NOWPayments мог уронить
+    // весь процесс сервера целиком (см. также глобальный перехватчик в index.ts).
+    console.error('[nowpayments] Не удалось создать инвойс:', err.message ?? err);
+    throw new Error('Платёжный сервис временно недоступен, попробуйте ещё раз через пару минут');
+  }
 }
 
 function sortObject(value: any): any {
