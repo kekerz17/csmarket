@@ -29,7 +29,12 @@ export async function createInvoice(order: OrderLike): Promise<InvoiceResult> {
       {
         price_amount: order.priceUsd,
         price_currency: 'usd',
-        pay_currency: 'usdt',
+        // pay_currency намеренно не указываем: тикер вида "usdt" без сети
+        // (trc20/erc20/...) NOWPayments не принимает и вернёт 400 — а
+        // жёстко указывать конкретную сеть нельзя, т.к. она должна быть
+        // отдельно включена в настройках мерчант-кабинета. Без этого поля
+        // NOWPayments сам покажет покупателю выбор сети на странице оплаты
+        // из тех валют, что включены в кабинете — это штатный сценарий.
         order_id: order.id,
         order_description: `Girgich Store — заказ ${order.id}`,
         ipn_callback_url: `${env.publicApiUrl}/api/webhooks/nowpayments`,
@@ -50,7 +55,10 @@ export async function createInvoice(order: OrderLike): Promise<InvoiceResult> {
     // Сетевая/TLS-ошибка сюда не долетит как обычный reject без явного
     // catch — а без него один сбой запроса к NOWPayments мог уронить
     // весь процесс сервера целиком (см. также глобальный перехватчик в index.ts).
-    console.error('[nowpayments] Не удалось создать инвойс:', err.message ?? err);
+    console.error(
+      '[nowpayments] Не удалось создать инвойс:',
+      err.response?.data ? JSON.stringify(err.response.data) : (err.message ?? err),
+    );
     throw new Error('Платёжный сервис временно недоступен, попробуйте ещё раз через пару минут');
   }
 }
