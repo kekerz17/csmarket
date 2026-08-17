@@ -1,4 +1,5 @@
-import { Routes, Route, Link } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import Home from './pages/Home';
 import ItemDetail from './pages/ItemDetail';
 import Profile from './pages/Profile';
@@ -12,6 +13,18 @@ import { api, API_ORIGIN } from './api';
 
 function HeaderAuth() {
   const { user, loading, refresh } = useAuth();
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!open) return;
+    function onClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', onClickOutside);
+    return () => document.removeEventListener('mousedown', onClickOutside);
+  }, [open]);
 
   if (loading) return <div className="w-24 h-8 skeleton rounded-full" />;
 
@@ -27,26 +40,43 @@ function HeaderAuth() {
   }
 
   async function logout() {
+    setOpen(false);
     await api.logout().catch(() => {});
     refresh();
+    navigate('/');
   }
 
   return (
-    <div className="flex items-center gap-2.5">
-      <Link to="/profile" className="flex items-center gap-2.5 group">
+    <div className="relative" ref={menuRef}>
+      <button onClick={() => setOpen((v) => !v)} className="flex items-center gap-2.5 group">
         <span className="text-sm text-emerald-400 font-semibold">${user.balanceUsd.toFixed(2)}</span>
-        <img src={user.avatarUrl} alt="" className="w-8 h-8 rounded-md border border-white/10 group-hover:border-white/30 transition-colors" />
+        <img
+          src={user.avatarUrl}
+          alt=""
+          className={`w-8 h-8 rounded-md border transition-colors ${open ? 'border-white/40' : 'border-white/10 group-hover:border-white/30'}`}
+        />
         <span className="hidden sm:inline text-sm text-neutral-300 group-hover:text-white transition-colors max-w-[120px] truncate">
           {user.personaName}
         </span>
-      </Link>
-      <button
-        onClick={logout}
-        title="Выйти из аккаунта"
-        className="text-neutral-600 hover:text-red-400 transition-colors text-sm"
-      >
-        ⏻
       </button>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-2 w-48 rounded-lg border border-white/10 bg-neutral-900 shadow-xl shadow-black/40 overflow-hidden py-1 text-sm">
+          <Link
+            to="/profile"
+            onClick={() => setOpen(false)}
+            className="block px-3 py-2 text-neutral-300 hover:bg-white/5 hover:text-white transition-colors"
+          >
+            Профиль
+          </Link>
+          <button
+            onClick={logout}
+            className="w-full text-left px-3 py-2 text-red-400 hover:bg-red-950/40 transition-colors"
+          >
+            Выйти из аккаунта
+          </button>
+        </div>
+      )}
     </div>
   );
 }
