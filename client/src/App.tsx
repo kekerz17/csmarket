@@ -122,9 +122,14 @@ export default function App() {
         <div className="max-w-6xl mx-auto px-6 py-6 text-xs text-neutral-600 flex flex-col sm:flex-row items-center justify-between gap-3">
           <span>Girgich Store — предметы из личного инвентаря Steam</span>
           <span>Выдача автоматическая, трейд-холд зависит от настроек вашего аккаунта Steam</span>
-          <Link to="/faq" className="text-neutral-400 hover:text-emerald-400 transition-colors shrink-0">
-            FAQ
-          </Link>
+          <div className="flex items-center gap-4 shrink-0">
+            <a href="mailto:lev2009177@gmail.com" className="text-neutral-400 hover:text-emerald-400 transition-colors">
+              lev2009177@gmail.com
+            </a>
+            <Link to="/faq" className="text-neutral-400 hover:text-emerald-400 transition-colors">
+              FAQ
+            </Link>
+          </div>
         </div>
       </footer>
     </div>
