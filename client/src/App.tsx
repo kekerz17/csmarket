@@ -110,11 +110,8 @@ export default function App() {
     <div className="min-h-screen flex flex-col">
       <header className="sticky top-0 z-10 border-b border-white/5 bg-neutral-950/70 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 group">
-            <span className="w-7 h-7 rounded-md bg-gradient-to-br from-emerald-400 to-sky-500 flex items-center justify-center text-neutral-950 font-black text-sm shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
-              G
-            </span>
-            <span className="text-lg font-semibold tracking-tight bg-gradient-to-r from-neutral-50 to-neutral-400 bg-clip-text text-transparent">
+          <Link to="/" className="group">
+            <span className="inline-block px-3.5 py-1.5 rounded-lg bg-gradient-to-br from-emerald-400 to-sky-500 text-neutral-950 font-black text-lg tracking-tight shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
               Girgich Store
             </span>
           </Link>
