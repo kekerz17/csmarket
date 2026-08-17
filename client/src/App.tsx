@@ -8,10 +8,10 @@ import AdminLogin from './pages/admin/Login';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminOrders from './pages/admin/Orders';
 import { useAuth } from './context/AuthContext';
-import { API_ORIGIN } from './api';
+import { api, API_ORIGIN } from './api';
 
 function HeaderAuth() {
-  const { user, loading } = useAuth();
+  const { user, loading, refresh } = useAuth();
 
   if (loading) return <div className="w-24 h-8 skeleton rounded-full" />;
 
@@ -26,14 +26,28 @@ function HeaderAuth() {
     );
   }
 
+  async function logout() {
+    await api.logout().catch(() => {});
+    refresh();
+  }
+
   return (
-    <Link to="/profile" className="flex items-center gap-2.5 group">
-      <span className="text-sm text-emerald-400 font-semibold">${user.balanceUsd.toFixed(2)}</span>
-      <img src={user.avatarUrl} alt="" className="w-8 h-8 rounded-md border border-white/10 group-hover:border-white/30 transition-colors" />
-      <span className="hidden sm:inline text-sm text-neutral-300 group-hover:text-white transition-colors max-w-[120px] truncate">
-        {user.personaName}
-      </span>
-    </Link>
+    <div className="flex items-center gap-2.5">
+      <Link to="/profile" className="flex items-center gap-2.5 group">
+        <span className="text-sm text-emerald-400 font-semibold">${user.balanceUsd.toFixed(2)}</span>
+        <img src={user.avatarUrl} alt="" className="w-8 h-8 rounded-md border border-white/10 group-hover:border-white/30 transition-colors" />
+        <span className="hidden sm:inline text-sm text-neutral-300 group-hover:text-white transition-colors max-w-[120px] truncate">
+          {user.personaName}
+        </span>
+      </Link>
+      <button
+        onClick={logout}
+        title="Выйти из аккаунта"
+        className="text-neutral-600 hover:text-red-400 transition-colors text-sm"
+      >
+        ⏻
+      </button>
+    </div>
   );
 }
 

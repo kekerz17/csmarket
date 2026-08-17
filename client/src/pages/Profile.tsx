@@ -41,6 +41,12 @@ export default function Profile() {
   }
   if (!user) return <div className="text-neutral-400">Загрузка...</div>;
 
+  async function logout() {
+    await api.logout().catch(() => {});
+    refresh();
+    navigate('/');
+  }
+
   async function saveTradeUrl(e: FormEvent) {
     e.preventDefault();
     setTradeUrlError(null);
@@ -75,12 +81,20 @@ export default function Profile() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center gap-4">
-        <img src={user.avatarUrl} alt="" className="w-16 h-16 rounded-xl border border-white/10" />
-        <div>
-          <h1 className="text-xl font-semibold">{user.personaName}</h1>
-          <div className="text-sm text-neutral-500">SteamID: {user.steamId64}</div>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <img src={user.avatarUrl} alt="" className="w-16 h-16 rounded-xl border border-white/10" />
+          <div>
+            <h1 className="text-xl font-semibold">{user.personaName}</h1>
+            <div className="text-sm text-neutral-500">SteamID: {user.steamId64}</div>
+          </div>
         </div>
+        <button
+          onClick={logout}
+          className="text-sm px-3 py-1.5 rounded-lg border border-white/10 text-neutral-400 hover:text-red-400 hover:border-red-900 transition-colors"
+        >
+          Выйти
+        </button>
       </div>
 
       <div className="rounded-2xl border border-white/5 bg-neutral-900/60 p-6">
