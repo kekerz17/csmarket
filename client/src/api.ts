@@ -164,6 +164,8 @@ export const api = {
   adminUpdateItem: (id: string, data: Partial<Pick<Item, 'priceUsd' | 'listed'>>) =>
     request<Item>(`/admin/items/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   adminSuggestPrice: (id: string) => request<Item>(`/admin/items/${id}/suggest-price`, { method: 'POST' }),
+  adminRefreshAllPrices: () =>
+    request<{ total: number; updated: number }>('/admin/items/refresh-all-prices', { method: 'POST' }),
   adminRefreshFloat: (id: string) => request<Item>(`/admin/items/${id}/refresh-float`, { method: 'POST' }),
   adminListOrders: () => request<Order[]>('/admin/orders'),
   adminBotStatus: () => request<BotStatus>('/admin/bot-status'),

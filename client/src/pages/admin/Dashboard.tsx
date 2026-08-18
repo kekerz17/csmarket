@@ -82,7 +82,26 @@ export default function AdminDashboard() {
   }
 
   async function suggestPrice(id: string) {
-    await api.adminSuggestPrice(id);
+    try {
+      await api.adminSuggestPrice(id);
+    } catch (err: any) {
+      alert(err.message ?? 'Не удалось получить рыночную цену');
+    }
+    reload();
+  }
+
+  const [refreshingAll, setRefreshingAll] = useState(false);
+
+  async function refreshAllPrices() {
+    setRefreshingAll(true);
+    try {
+      const result = await api.adminRefreshAllPrices();
+      alert(`Обновлено цен: ${result.updated} из ${result.total}`);
+    } catch (err: any) {
+      alert(err.message ?? 'Не удалось обновить цены');
+    } finally {
+      setRefreshingAll(false);
+    }
     reload();
   }
 
@@ -107,6 +126,13 @@ export default function AdminDashboard() {
           >
             Бот: {bot?.dryRun ? 'не настроен — ручная выдача' : bot?.online ? 'онлайн' : 'офлайн'}
           </span>
+          <button
+            onClick={refreshAllPrices}
+            disabled={refreshingAll}
+            className="text-xs px-3 py-1.5 rounded bg-neutral-800 hover:bg-neutral-700 disabled:opacity-50"
+          >
+            {refreshingAll ? 'Обновляем...' : 'Обновить все рыночные цены'}
+          </button>
           <Link to="/admin/orders" className="text-sm text-neutral-400 hover:text-neutral-200">
             Заказы →
           </Link>

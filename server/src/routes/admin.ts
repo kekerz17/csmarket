@@ -7,6 +7,7 @@ import { env } from '../env.js';
 import { adminAuth } from '../middleware/adminAuth.js';
 import { authCookieOptions } from '../lib/cookies.js';
 import { getMarketPrice } from '../services/pricing.js';
+import { getSkinportPrice, warmSkinportCache } from '../services/skinportPricing.js';
 import { getBotStatus, getFloat } from '../services/tradeBot.js';
 import { getExchangeRates, setExchangeRates } from '../lib/settings.js';
 
@@ -67,14 +68,39 @@ router.post('/items/:id/suggest-price', async (req, res) => {
     return;
   }
 
-  const price = await getMarketPrice(item.marketHashName);
+  // Skinport — основной источник: отдаёт цены на весь каталог одним запросом
+  // и не подвержен блокировкам Steam по IP дата-центра. Steam Market —
+  // запасной вариант для редких предметов, которых нет на Skinport.
+  let price = await getSkinportPrice(item.marketHashName);
   if (price == null) {
-    res.status(502).json({ error: 'Steam Market не вернул цену' });
+    price = await getMarketPrice(item.marketHashName);
+  }
+  if (price == null) {
+    res.status(502).json({ error: 'Не удалось получить цену ни с одного источника (Skinport, Steam Market)' });
     return;
   }
 
   const updated = await prisma.item.update({ where: { id: item.id }, data: { suggestedMarketPrice: price } });
   res.json(updated);
+});
+
+// Массовое обновление рыночных цен по всем выставленным предметам сразу —
+// использует уже прогретый кэш Skinport, поэтому не упирается в лимиты
+// Steam и отрабатывает за секунды даже на большом инвентаре.
+router.post('/items/refresh-all-prices', async (_req, res) => {
+  await warmSkinportCache();
+
+  const items = await prisma.item.findMany({ where: { status: 'AVAILABLE' } });
+  let updated = 0;
+  for (const item of items) {
+    const price = await getSkinportPrice(item.marketHashName);
+    if (price != null) {
+      await prisma.item.update({ where: { id: item.id }, data: { suggestedMarketPrice: price } });
+      updated++;
+    }
+  }
+
+  res.json({ total: items.length, updated });
 });
 
 router.post('/items/:id/refresh-float', async (req, res) => {
