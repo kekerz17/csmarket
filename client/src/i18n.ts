@@ -76,7 +76,8 @@ const ru: Dict = {
   'profile.save': 'Сохранить',
   'profile.saved': 'Сохранено',
   'profile.saveError': 'Не удалось сохранить',
-  'profile.myOrders': 'Мои покупки',
+  'profile.myOrders': 'История покупок',
+  'profile.noOrders': 'Пока нет ни одной покупки.',
 
   'order.status.PAID': 'Оплачено',
   'order.status.AWAITING_MANUAL_FULFILLMENT': 'Продавец готовит трейд',
@@ -204,7 +205,8 @@ const en: Dict = {
   'profile.save': 'Save',
   'profile.saved': 'Saved',
   'profile.saveError': 'Failed to save',
-  'profile.myOrders': 'My purchases',
+  'profile.myOrders': 'Purchase history',
+  'profile.noOrders': "You haven't made any purchases yet.",
 
   'order.status.PAID': 'Paid',
   'order.status.AWAITING_MANUAL_FULFILLMENT': 'Seller is preparing the trade',

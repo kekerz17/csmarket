@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api, Order } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
+import { useLanguage } from '../context/LanguageContext';
 import { useT } from '../i18n';
 
 const inputClass =
@@ -11,8 +12,15 @@ const inputClass =
 export default function Profile() {
   const { user, loading, refresh } = useAuth();
   const { format, currency } = useCurrency();
+  const { language } = useLanguage();
   const t = useT();
   const navigate = useNavigate();
+  const dateFormat = new Intl.DateTimeFormat(language === 'ru' ? 'ru-RU' : 'en-US', {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 
   const [tradeUrl, setTradeUrl] = useState('');
   const [tradeUrlSaved, setTradeUrlSaved] = useState(false);
@@ -151,27 +159,32 @@ export default function Profile() {
         {tradeUrlError && <div className="text-sm text-red-400 mt-2">{tradeUrlError}</div>}
       </div>
 
-      {orders.length > 0 && (
-        <div className="rounded-2xl border border-white/5 bg-neutral-900/60 p-6">
-          <h2 className="text-sm font-semibold mb-3">{t('profile.myOrders')}</h2>
+      <div className="rounded-2xl border border-white/5 bg-neutral-900/60 p-6">
+        <h2 className="text-sm font-semibold mb-3">{t('profile.myOrders')}</h2>
+        {orders.length === 0 ? (
+          <div className="text-sm text-neutral-500">{t('profile.noOrders')}</div>
+        ) : (
           <div className="space-y-2">
             {orders.map((o) => (
               <div
                 key={o.id}
                 onClick={() => navigate(`/order/${o.id}`)}
-                className="flex items-center justify-between text-sm py-2 border-t border-white/5 first:border-t-0 cursor-pointer hover:text-neutral-100 text-neutral-400"
+                className="flex items-center justify-between gap-3 text-sm py-2 border-t border-white/5 first:border-t-0 cursor-pointer hover:text-neutral-100 text-neutral-400"
               >
-                <span className="flex items-center gap-2">
-                  <img src={o.item.iconUrl} className="w-8 h-8 object-contain" alt="" />
-                  {o.item.name}
+                <span className="flex items-center gap-2 min-w-0">
+                  <img src={o.item.iconUrl} className="w-8 h-8 object-contain shrink-0" alt="" />
+                  <span className="flex flex-col min-w-0">
+                    <span className="truncate">{o.item.name}</span>
+                    <span className="text-xs text-neutral-600">{dateFormat.format(new Date(o.createdAt))}</span>
+                  </span>
                 </span>
-                <span>{format(o.priceUsd)}</span>
-                <span>{t(`order.status.${o.status}`)}</span>
+                <span className="shrink-0">{format(o.priceUsd)}</span>
+                <span className="shrink-0">{t(`order.status.${o.status}`)}</span>
               </div>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
