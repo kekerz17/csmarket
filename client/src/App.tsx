@@ -18,21 +18,79 @@ import { useOnlineCount } from './useOnlineCount';
 import { pluralRu } from './pluralRu';
 import RecentSales from './components/RecentSales';
 
+function FlagRu({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 3 2" className={className}>
+      <rect width="3" height="2" fill="#fff" />
+      <rect width="3" height="1.3333" y="0.6667" fill="#0039A6" />
+      <rect width="3" height="0.6667" y="1.3333" fill="#D52B1E" />
+    </svg>
+  );
+}
+
+function FlagUs({ className }: { className?: string }) {
+  const stripeH = 10 / 13;
+  return (
+    <svg viewBox="0 0 19 10" className={className}>
+      <rect width="19" height="10" fill="#fff" />
+      {Array.from({ length: 13 }, (_, i) =>
+        i % 2 === 0 ? <rect key={i} x="0" y={i * stripeH} width="19" height={stripeH} fill="#B22234" /> : null,
+      )}
+      <rect width="7.6" height={stripeH * 7} fill="#3C3B6E" />
+    </svg>
+  );
+}
+
+const LANGUAGES: { code: Language; label: string; Flag: (props: { className?: string }) => JSX.Element }[] = [
+  { code: 'ru', label: 'RU', Flag: FlagRu },
+  { code: 'en', label: 'EN', Flag: FlagUs },
+];
+
 function LanguageSelector() {
   const { language, setLanguage } = useLanguage();
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', onClickOutside);
+    return () => document.removeEventListener('mousedown', onClickOutside);
+  }, [open]);
+
+  const current = LANGUAGES.find((l) => l.code === language) ?? LANGUAGES[0];
+
   return (
-    <select
-      value={language}
-      onChange={(e) => setLanguage(e.target.value as Language)}
-      className="bg-transparent text-neutral-400 hover:text-neutral-200 text-sm border border-white/10 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-emerald-500/60 cursor-pointer"
-    >
-      <option className="bg-neutral-900" value="ru">
-        🇷🇺 RU
-      </option>
-      <option className="bg-neutral-900" value="en">
-        🇺🇸 EN
-      </option>
-    </select>
+    <div className="relative" ref={menuRef}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-1.5 text-neutral-400 hover:text-neutral-200 text-sm border border-white/10 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-emerald-500/60 cursor-pointer transition-colors"
+      >
+        <current.Flag className="w-4 h-3 rounded-[2px] overflow-hidden shrink-0" />
+        {current.label}
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-2 w-24 rounded-lg border border-white/10 bg-neutral-900 shadow-xl shadow-black/40 overflow-hidden py-1 text-sm z-20">
+          {LANGUAGES.map((l) => (
+            <button
+              key={l.code}
+              onClick={() => {
+                setLanguage(l.code);
+                setOpen(false);
+              }}
+              className={`w-full flex items-center gap-2 px-3 py-2 text-left transition-colors ${
+                l.code === language ? 'text-emerald-400' : 'text-neutral-300 hover:bg-white/5 hover:text-white'
+              }`}
+            >
+              <l.Flag className="w-4 h-3 rounded-[2px] overflow-hidden shrink-0" />
+              {l.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
