@@ -195,6 +195,9 @@ export default function App() {
             </Link>
           </div>
         </div>
+        <div className="max-w-6xl mx-auto px-6 pb-6 text-[11px] text-neutral-700 text-center sm:text-left">
+          Powered by Steam. Not affiliated with Valve Corp.
+        </div>
       </footer>
     </div>
   );
