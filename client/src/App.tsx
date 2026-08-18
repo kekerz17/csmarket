@@ -11,7 +11,27 @@ import AdminDashboard from './pages/admin/Dashboard';
 import AdminOrders from './pages/admin/Orders';
 import { useAuth } from './context/AuthContext';
 import { useCurrency, type Currency } from './context/CurrencyContext';
+import { useLanguage, type Language } from './context/LanguageContext';
+import { useT } from './i18n';
 import { api, API_ORIGIN, clearUserToken } from './api';
+
+function LanguageSelector() {
+  const { language, setLanguage } = useLanguage();
+  return (
+    <select
+      value={language}
+      onChange={(e) => setLanguage(e.target.value as Language)}
+      className="bg-transparent text-neutral-400 hover:text-neutral-200 text-sm border border-white/10 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-emerald-500/60 cursor-pointer"
+    >
+      <option className="bg-neutral-900" value="ru">
+        RU
+      </option>
+      <option className="bg-neutral-900" value="en">
+        EN
+      </option>
+    </select>
+  );
+}
 
 function CurrencySelector() {
   const { currency, setCurrency } = useCurrency();
@@ -37,6 +57,7 @@ function CurrencySelector() {
 function HeaderAuth() {
   const { user, loading, refresh } = useAuth();
   const { format } = useCurrency();
+  const t = useT();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -58,7 +79,7 @@ function HeaderAuth() {
         href={`${API_ORIGIN}/api/auth/steam`}
         className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-neutral-950 font-semibold transition-all"
       >
-        Войти через Steam
+        {t('header.login')}
       </a>
     );
   }
@@ -92,13 +113,13 @@ function HeaderAuth() {
             onClick={() => setOpen(false)}
             className="block px-3 py-2 text-neutral-300 hover:bg-white/5 hover:text-white transition-colors"
           >
-            Профиль
+            {t('header.profile')}
           </Link>
           <button
             onClick={logout}
             className="w-full text-left px-3 py-2 text-red-400 hover:bg-red-950/40 transition-colors"
           >
-            Выйти из аккаунта
+            {t('header.logout')}
           </button>
         </div>
       )}
@@ -107,6 +128,7 @@ function HeaderAuth() {
 }
 
 export default function App() {
+  const t = useT();
   return (
     <div className="min-h-screen flex flex-col">
       <header className="sticky top-0 z-10 border-b border-white/5 bg-neutral-950/70 backdrop-blur-md">
@@ -117,9 +139,10 @@ export default function App() {
             </span>
           </Link>
           <div className="flex items-center gap-4">
+            <LanguageSelector />
             <CurrencySelector />
             <Link to="/admin" className="hidden sm:inline text-xs text-neutral-600 hover:text-neutral-400 transition-colors">
-              Админ
+              {t('header.admin')}
             </Link>
             <HeaderAuth />
           </div>
@@ -142,8 +165,8 @@ export default function App() {
 
       <footer className="border-t border-white/5 mt-12">
         <div className="max-w-6xl mx-auto px-6 py-6 text-xs text-neutral-600 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span>Girgich Store — предметы из личного инвентаря Steam</span>
-          <span>Выдача автоматическая, трейд-холд зависит от настроек вашего аккаунта Steam</span>
+          <span>{t('footer.tagline')}</span>
+          <span>{t('footer.holdNote')}</span>
           <div className="flex items-center gap-4 shrink-0">
             <a href="mailto:lev2009177@gmail.com" className="text-neutral-400 hover:text-emerald-400 transition-colors">
               lev2009177@gmail.com

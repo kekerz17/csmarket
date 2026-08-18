@@ -4,6 +4,8 @@ import { api, API_ORIGIN, Item, User, getDiscountPercent, parseStickers } from '
 import { categoryLabel } from '../components/CategorySidebar';
 import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
+import { useLanguage } from '../context/LanguageContext';
+import { useT } from '../i18n';
 
 export default function ItemDetail() {
   const { assetId } = useParams<{ assetId: string }>();
@@ -13,6 +15,8 @@ export default function ItemDetail() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { format } = useCurrency();
+  const { language } = useLanguage();
+  const t = useT();
 
   useEffect(() => {
     if (!assetId) return;
@@ -40,7 +44,7 @@ export default function ItemDetail() {
   return (
     <div>
       <Link to="/" className="text-sm text-neutral-500 hover:text-neutral-300 transition-colors">
-        ← Ко всем предметам
+        {t('item.backToAll')}
       </Link>
 
       <div className="grid md:grid-cols-2 gap-10 mt-4">
@@ -60,7 +64,7 @@ export default function ItemDetail() {
           <div className="flex flex-wrap items-center gap-2 mb-3">
             {item.category && (
               <span className="text-xs px-2.5 py-1 rounded-full border border-white/10 text-neutral-400">
-                {categoryLabel(item.category)}
+                {categoryLabel(item.category, language)}
               </span>
             )}
             {item.rarity && (
@@ -83,12 +87,9 @@ export default function ItemDetail() {
                   {' '}
                   · float {item.floatValue.toFixed(6)}
                   {item.floatSource === 'simulated' && (
-                    <span
-                      className="text-amber-500"
-                      title="Демо-значение: бот ещё не подключен, реальный float не запрошен у Steam"
-                    >
+                    <span className="text-amber-500" title={t('item.demoFloatTitle')}>
                       {' '}
-                      (демо, не реальные данные)
+                      {t('item.demoFloatLabel')}
                     </span>
                   )}
                 </span>
@@ -98,7 +99,7 @@ export default function ItemDetail() {
 
           {stickers.length > 0 && (
             <div className="mb-5">
-              <div className="text-xs text-neutral-500 mb-2 uppercase tracking-wide">Наклейки</div>
+              <div className="text-xs text-neutral-500 mb-2 uppercase tracking-wide">{t('item.stickers')}</div>
               <div className="flex gap-2 flex-wrap">
                 {stickers.map((s) => (
                   <img
@@ -116,12 +117,12 @@ export default function ItemDetail() {
           <div className="rounded-xl border border-white/5 bg-neutral-900/60 p-5 mt-6">
             <div className="flex items-baseline gap-2 mb-4 flex-wrap">
               <span className="text-3xl font-bold">{format(item.priceUsd)}</span>
-              <span className="text-xs text-neutral-500">оплата в USDT</span>
+              <span className="text-xs text-neutral-500">{t('item.payUsdt')}</span>
               {discount != null && (
                 <>
                   <span className="text-sm text-neutral-600 line-through">{format(item.suggestedMarketPrice)}</span>
                   <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-rose-500 text-white">
-                    -{discount}% от рынка
+                    {t('item.discountFromMarket', { pct: discount })}
                   </span>
                 </>
               )}
@@ -138,7 +139,7 @@ export default function ItemDetail() {
                   const { orderId } = await api.purchase(item.assetId);
                   navigate(`/order/${orderId}`);
                 } catch (err: any) {
-                  setBuyError(err.message ?? 'Не удалось купить предмет');
+                  setBuyError(err.message ?? t('buy.genericError'));
                 } finally {
                   setBuying(false);
                 }
@@ -166,6 +167,7 @@ function BuyButton({
   onBuy: () => void;
 }) {
   const { format } = useCurrency();
+  const t = useT();
   const baseClass =
     'w-full rounded-lg py-3 font-semibold transition-all shadow-lg disabled:cursor-not-allowed disabled:opacity-60';
   const buyClass = `${baseClass} bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-neutral-950 shadow-emerald-500/10`;
@@ -178,7 +180,7 @@ function BuyButton({
   if (!user) {
     return (
       <a href={`${API_ORIGIN}/api/auth/steam`} className={buyClass + ' block text-center'}>
-        Войти через Steam, чтобы купить
+        {t('buy.loginToBuy')}
       </a>
     );
   }
@@ -186,7 +188,7 @@ function BuyButton({
   if (!user.tradeUrl) {
     return (
       <a href="/profile" className={secondaryClass + ' block text-center'}>
-        Укажите trade-ссылку в профиле
+        {t('buy.setTradeUrl')}
       </a>
     );
   }
@@ -194,14 +196,14 @@ function BuyButton({
   if (item.priceUsd != null && user.balanceUsd < item.priceUsd) {
     return (
       <a href="/profile" className={secondaryClass + ' block text-center'}>
-        Недостаточно баланса — пополнить
+        {t('buy.topUp')}
       </a>
     );
   }
 
   return (
     <button onClick={onBuy} disabled={buying} className={buyClass}>
-      {buying ? 'Покупаем...' : `Купить за ${format(item.priceUsd)}`}
+      {buying ? t('buy.buying') : t('buy.buyFor', { price: format(item.priceUsd) })}
     </button>
   );
 }

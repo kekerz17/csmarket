@@ -3,20 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { api, Order } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
+import { useT } from '../i18n';
 
 const inputClass =
   'w-full rounded-lg bg-neutral-950 border border-white/10 px-3 py-2.5 text-sm placeholder:text-neutral-600 focus:outline-none focus:ring-1 focus:ring-emerald-500/60 focus:border-emerald-500/60 transition-colors';
 
-const ORDER_STATUS_LABELS: Record<string, string> = {
-  PAID: 'Оплачено',
-  TRADE_SENT: 'Трейд отправлен',
-  COMPLETED: 'Завершено',
-  FAILED: 'Ошибка (деньги возвращены)',
-};
-
 export default function Profile() {
   const { user, loading, refresh } = useAuth();
   const { format, currency } = useCurrency();
+  const t = useT();
   const navigate = useNavigate();
 
   const [tradeUrl, setTradeUrl] = useState('');
@@ -41,7 +36,7 @@ export default function Profile() {
     navigate('/');
     return null;
   }
-  if (!user) return <div className="text-neutral-400">Загрузка...</div>;
+  if (!user) return <div className="text-neutral-400">{t('profile.loading')}</div>;
 
   async function logout() {
     await api.logout().catch(() => {});
@@ -58,7 +53,7 @@ export default function Profile() {
       setTradeUrlSaved(true);
       refresh();
     } catch (err: any) {
-      setTradeUrlError(err.message ?? 'Не удалось сохранить');
+      setTradeUrlError(err.message ?? t('profile.saveError'));
     }
   }
 
@@ -75,7 +70,7 @@ export default function Profile() {
         window.location.href = invoiceUrl;
       }
     } catch (err: any) {
-      setDepositError(err.message ?? 'Не удалось создать депозит');
+      setDepositError(err.message ?? t('profile.depositError'));
     } finally {
       setDepositLoading(false);
     }
@@ -88,21 +83,21 @@ export default function Profile() {
           <img src={user.avatarUrl} alt="" className="w-16 h-16 rounded-xl border border-white/10" />
           <div>
             <h1 className="text-xl font-semibold">{user.personaName}</h1>
-            <div className="text-sm text-neutral-500">SteamID: {user.steamId64}</div>
+            <div className="text-sm text-neutral-500">{t('profile.steamId', { id: user.steamId64 })}</div>
           </div>
         </div>
         <button
           onClick={logout}
           className="text-sm px-3 py-1.5 rounded-lg border border-white/10 text-neutral-400 hover:text-red-400 hover:border-red-900 transition-colors"
         >
-          Выйти
+          {t('profile.logout')}
         </button>
       </div>
 
       <div className="rounded-2xl border border-white/5 bg-neutral-900/60 p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <div className="text-xs text-neutral-500 uppercase tracking-wide mb-1">Баланс</div>
+            <div className="text-xs text-neutral-500 uppercase tracking-wide mb-1">{t('profile.balance')}</div>
             <div className="text-3xl font-bold text-emerald-400">{format(user.balanceUsd)}</div>
           </div>
         </div>
@@ -120,27 +115,22 @@ export default function Profile() {
             disabled={depositLoading}
             className="rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 disabled:opacity-50 px-4 py-2.5 text-sm font-semibold text-neutral-950 transition-all"
           >
-            {depositLoading ? 'Создаём счёт...' : 'Пополнить баланс'}
+            {depositLoading ? t('profile.creatingInvoice') : t('profile.depositButton')}
           </button>
         </form>
         <p className="text-xs text-neutral-600 mt-2">
-          Сумма всегда в USD/USDT — пополнение и баланс не зависят от выбранной валюты отображения.
+          {t('profile.depositNote')}
           {currency !== 'USD' && Number(depositAmount) > 0 && <> ≈ {format(Number(depositAmount))}</>}
         </p>
         {depositError && <div className="text-sm text-red-400 mt-2">{depositError}</div>}
       </div>
 
       <div className="rounded-2xl border border-white/5 bg-neutral-900/60 p-6">
-        <h2 className="text-sm font-semibold mb-1">Steam Trade URL</h2>
-        <p className="text-xs text-neutral-500 mb-3">
-          Нужна для автоматической выдачи скинов. Найти можно на steamcommunity.com в настройках инвентаря → «Обмен».
-        </p>
+        <h2 className="text-sm font-semibold mb-1">{t('profile.tradeUrlTitle')}</h2>
+        <p className="text-xs text-neutral-500 mb-3">{t('profile.tradeUrlDesc')}</p>
         <div className="mb-4 text-sm text-amber-400 bg-amber-950/30 border border-amber-900/60 rounded-lg p-3 flex gap-2">
           <span>⚠</span>
-          <span>
-            Для мгновенной выдачи у вас должен быть включён Steam Guard Mobile Authenticator минимум 7 дней — иначе
-            Steam наложит trade hold на полученный предмет.
-          </span>
+          <span>{t('profile.tradeHoldWarning')}</span>
         </div>
         <form onSubmit={saveTradeUrl} className="flex gap-2">
           <input
@@ -154,16 +144,16 @@ export default function Profile() {
             type="submit"
             className="shrink-0 rounded-lg bg-neutral-800 hover:bg-neutral-700 px-4 py-2.5 text-sm font-medium transition-colors"
           >
-            Сохранить
+            {t('profile.save')}
           </button>
         </form>
-        {tradeUrlSaved && <div className="text-sm text-emerald-400 mt-2">Сохранено</div>}
+        {tradeUrlSaved && <div className="text-sm text-emerald-400 mt-2">{t('profile.saved')}</div>}
         {tradeUrlError && <div className="text-sm text-red-400 mt-2">{tradeUrlError}</div>}
       </div>
 
       {orders.length > 0 && (
         <div className="rounded-2xl border border-white/5 bg-neutral-900/60 p-6">
-          <h2 className="text-sm font-semibold mb-3">Мои покупки</h2>
+          <h2 className="text-sm font-semibold mb-3">{t('profile.myOrders')}</h2>
           <div className="space-y-2">
             {orders.map((o) => (
               <div
@@ -176,7 +166,7 @@ export default function Profile() {
                   {o.item.name}
                 </span>
                 <span>{format(o.priceUsd)}</span>
-                <span>{ORDER_STATUS_LABELS[o.status] ?? o.status}</span>
+                <span>{t(`order.status.${o.status}`)}</span>
               </div>
             ))}
           </div>

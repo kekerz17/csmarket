@@ -2,20 +2,15 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api, Order } from '../api';
 import { useCurrency } from '../context/CurrencyContext';
+import { useT } from '../i18n';
 
 const STEPS = ['PAID', 'AWAITING_MANUAL_FULFILLMENT', 'TRADE_SENT', 'COMPLETED'];
-const LABELS: Record<string, string> = {
-  PAID: 'Оплачено',
-  AWAITING_MANUAL_FULFILLMENT: 'Продавец готовит трейд',
-  TRADE_SENT: 'Трейд отправлен',
-  COMPLETED: 'Завершено',
-  FAILED: 'Ошибка',
-};
 
 export default function OrderStatus() {
   const { id } = useParams<{ id: string }>();
   const [order, setOrder] = useState<Order | null>(null);
   const { format } = useCurrency();
+  const t = useT();
 
   useEffect(() => {
     if (!id) return;
@@ -25,7 +20,7 @@ export default function OrderStatus() {
     return () => clearInterval(interval);
   }, [id]);
 
-  if (!order) return <div className="text-neutral-400">Загрузка...</div>;
+  if (!order) return <div className="text-neutral-400">{t('profile.loading')}</div>;
 
   const currentIndex = STEPS.indexOf(order.status);
   const isTerminalFailure = order.status === 'FAILED';
@@ -35,15 +30,15 @@ export default function OrderStatus() {
   return (
     <div className="max-w-lg mx-auto">
       <Link to="/" className="text-sm text-neutral-500 hover:text-neutral-300 transition-colors">
-        ← На главную
+        {t('orderPage.back')}
       </Link>
 
       <div className="rounded-2xl border border-white/5 bg-neutral-900/60 p-6 mt-4">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-lg font-semibold">Заказ #{order.id.slice(0, 8)}</h1>
+          <h1 className="text-lg font-semibold">{t('orderPage.title', { id: order.id.slice(0, 8) })}</h1>
           {isComplete && (
             <span className="text-xs px-2.5 py-1 rounded-full border border-emerald-700 text-emerald-400 bg-emerald-500/10">
-              Готово
+              {t('orderPage.done')}
             </span>
           )}
         </div>
@@ -62,8 +57,9 @@ export default function OrderStatus() {
 
         {isTerminalFailure ? (
           <div className="rounded-lg border border-red-900 bg-red-950/40 p-4 text-red-300 text-sm">
-            {LABELS[order.status]}
-            {order.failureReason ? `: ${order.failureReason}` : ''}. Средства автоматически возвращены на ваш баланс.
+            {t('orderPage.failedLabel')}
+            {order.failureReason ? `: ${order.failureReason}` : ''}
+            {t('orderPage.failureSuffix')}
           </div>
         ) : (
           <div className="relative">
@@ -87,15 +83,16 @@ export default function OrderStatus() {
                     >
                       {done ? '✓' : i + 1}
                     </span>
-                    <span className={done || active ? 'text-neutral-100' : 'text-neutral-500'}>{LABELS[step]}</span>
+                    <span className={done || active ? 'text-neutral-100' : 'text-neutral-500'}>
+                      {t(`order.status.${step}`)}
+                    </span>
                   </li>
                 );
               })}
             </ol>
             {order.status === 'AWAITING_MANUAL_FULFILLMENT' && (
               <div className="mt-6 text-xs text-neutral-500 bg-neutral-950/60 rounded-lg p-3 border border-white/5">
-                Продавец отправляет трейд-офферы вручную — это может занять некоторое время. Проверьте уведомления в
-                Steam чуть позже.
+                {t('orderPage.awaitingNote')}
               </div>
             )}
           </div>

@@ -1,3 +1,5 @@
+import { useT } from '../i18n';
+
 interface FiltersProps {
   search: string;
   onSearchChange: (v: string) => void;
@@ -18,6 +20,7 @@ export default function Filters({
   onMinPriceChange,
   onMaxPriceChange,
 }: FiltersProps) {
+  const t = useT();
   return (
     <div className="flex flex-wrap gap-3 mb-6">
       <div className="relative flex-1 min-w-[200px]">
@@ -33,21 +36,21 @@ export default function Filters({
         <input
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Поиск по названию..."
+          placeholder={t('filters.search')}
           className={`${inputClass} w-full pl-9`}
         />
       </div>
       <input
         value={minPrice}
         onChange={(e) => onMinPriceChange(e.target.value)}
-        placeholder="Цена от"
+        placeholder={t('filters.minPrice')}
         type="number"
         className={`${inputClass} w-28`}
       />
       <input
         value={maxPrice}
         onChange={(e) => onMaxPriceChange(e.target.value)}
-        placeholder="Цена до"
+        placeholder={t('filters.maxPrice')}
         type="number"
         className={`${inputClass} w-28`}
       />

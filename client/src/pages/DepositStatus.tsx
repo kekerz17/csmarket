@@ -3,19 +3,14 @@ import { useParams, Link } from 'react-router-dom';
 import { api, Deposit } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
-
-const LABELS: Record<string, string> = {
-  PENDING: 'Ожидание оплаты',
-  COMPLETED: 'Зачислено на баланс',
-  FAILED: 'Оплата не прошла',
-  EXPIRED: 'Счёт истёк',
-};
+import { useT } from '../i18n';
 
 export default function DepositStatus() {
   const { id } = useParams<{ id: string }>();
   const [deposit, setDeposit] = useState<Deposit | null>(null);
   const { refresh } = useAuth();
   const { format } = useCurrency();
+  const t = useT();
 
   useEffect(() => {
     if (!id) return;
@@ -32,7 +27,7 @@ export default function DepositStatus() {
     return () => clearInterval(interval);
   }, [id]);
 
-  if (!deposit) return <div className="text-neutral-400">Загрузка...</div>;
+  if (!deposit) return <div className="text-neutral-400">{t('profile.loading')}</div>;
 
   const isDone = deposit.status === 'COMPLETED';
   const isFailed = deposit.status === 'FAILED' || deposit.status === 'EXPIRED';
@@ -40,24 +35,24 @@ export default function DepositStatus() {
   return (
     <div className="max-w-md mx-auto">
       <Link to="/profile" className="text-sm text-neutral-500 hover:text-neutral-300 transition-colors">
-        ← В профиль
+        {t('deposit.back')}
       </Link>
 
       <div className="rounded-2xl border border-white/5 bg-neutral-900/60 p-6 mt-4 text-center">
         <div className="text-3xl font-bold mb-1">{format(deposit.amountUsd)}</div>
-        <div className="text-xs text-neutral-500 mb-6">пополнение баланса в USDT</div>
+        <div className="text-xs text-neutral-500 mb-6">{t('deposit.caption')}</div>
 
         {isDone ? (
           <div className="rounded-lg border border-emerald-800 bg-emerald-950/30 p-4 text-emerald-300 text-sm">
-            ✓ {LABELS[deposit.status]}
+            ✓ {t(`deposit.status.${deposit.status}`)}
           </div>
         ) : isFailed ? (
           <div className="rounded-lg border border-red-900 bg-red-950/40 p-4 text-red-300 text-sm">
-            {LABELS[deposit.status]}
+            {t(`deposit.status.${deposit.status}`)}
           </div>
         ) : (
           <div className="rounded-lg border border-amber-900/60 bg-amber-950/30 p-4 text-amber-300 text-sm animate-pulse">
-            {LABELS[deposit.status]}...
+            {t(`deposit.status.${deposit.status}`)}...
           </div>
         )}
       </div>

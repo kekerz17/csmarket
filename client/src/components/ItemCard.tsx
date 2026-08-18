@@ -2,9 +2,11 @@ import { Link } from 'react-router-dom';
 import type { Item } from '../api';
 import { getDiscountPercent, parseStickers } from '../api';
 import { useCurrency } from '../context/CurrencyContext';
+import { useT } from '../i18n';
 
 export default function ItemCard({ item }: { item: Item }) {
   const { format } = useCurrency();
+  const t = useT();
   const rarity = item.rarityColor ? `#${item.rarityColor}` : '#3f3f46';
   const stickerCount = parseStickers(item).length;
   const discount = getDiscountPercent(item);
@@ -51,9 +53,9 @@ export default function ItemCard({ item }: { item: Item }) {
               {' '}
               · {item.floatValue.toFixed(4)}
               {item.floatSource === 'simulated' && (
-                <span className="text-amber-500" title="Демо-значение: реальный float ещё не запрошен у Steam">
+                <span className="text-amber-500" title={t('item.demoFloatTitleShort')}>
                   {' '}
-                  (демо)
+                  {t('item.demoFloatShort')}
                 </span>
               )}
             </span>

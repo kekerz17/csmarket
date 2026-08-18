@@ -3,17 +3,24 @@ import { api, CategoryCount, Item, getDiscountPercent } from '../api';
 import ItemCard from '../components/ItemCard';
 import Filters from '../components/Filters';
 import CategorySidebar, { categoryLabel } from '../components/CategorySidebar';
+import { useLanguage } from '../context/LanguageContext';
+import { useT } from '../i18n';
 
 type SortBy = 'default' | 'price_asc' | 'price_desc' | 'discount';
+const SORT_KEYS: SortBy[] = ['default', 'price_asc', 'price_desc', 'discount'];
 
-const SORT_LABELS: Record<SortBy, string> = {
-  default: 'По умолчанию',
-  price_asc: 'Цена: по возрастанию',
-  price_desc: 'Цена: по убыванию',
-  discount: 'Сначала скидки',
-};
+// Русское склонение существительного после числа — "1 предмет", "2 предмета", "5 предметов".
+function itemsWordRu(n: number): string {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return 'предмет';
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'предмета';
+  return 'предметов';
+}
 
 export default function Home() {
+  const t = useT();
+  const { language } = useLanguage();
   const [items, setItems] = useState<Item[]>([]);
   const [categories, setCategories] = useState<CategoryCount[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,12 +67,14 @@ export default function Home() {
       <div className="mb-8 rounded-2xl border border-white/5 bg-gradient-to-br from-neutral-900 via-neutral-900 to-neutral-950 p-6 sm:p-8 overflow-hidden relative">
         <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-emerald-500/10 blur-3xl" />
         <div className="relative">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2">Скины CS2 по лучшим ценам</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2">{t('home.heroTitle')}</h1>
           <p className="text-neutral-400 max-w-xl text-sm sm:text-base">
-            Мгновенная автоматическая выдача трейд-оффером, оплата в USDT.{' '}
+            {t('home.heroSubtitle')}{' '}
             {totalCount > 0 && (
               <span className="text-neutral-300">
-                Сейчас в продаже {totalCount} {totalCount === 1 ? 'предмет' : 'предметов'}.
+                {language === 'ru'
+                  ? `Сейчас в продаже ${totalCount} ${itemsWordRu(totalCount)}.`
+                  : `Currently ${totalCount} item${totalCount === 1 ? '' : 's'} available.`}
               </span>
             )}
           </p>
@@ -88,7 +97,7 @@ export default function Home() {
           <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
             {category ? (
               <div className="text-sm text-neutral-400">
-                Категория: <span className="text-neutral-200">{categoryLabel(category)}</span>
+                {t('home.categoryPrefix')} <span className="text-neutral-200">{categoryLabel(category, language)}</span>
               </div>
             ) : (
               <div />
@@ -98,9 +107,9 @@ export default function Home() {
               onChange={(e) => setSortBy(e.target.value as SortBy)}
               className="bg-neutral-900 border border-white/10 text-neutral-300 text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500/60 cursor-pointer"
             >
-              {(Object.keys(SORT_LABELS) as SortBy[]).map((key) => (
+              {SORT_KEYS.map((key) => (
                 <option key={key} value={key} className="bg-neutral-900">
-                  {SORT_LABELS[key]}
+                  {t(`home.sort.${key}`)}
                 </option>
               ))}
             </select>
@@ -114,7 +123,7 @@ export default function Home() {
             </div>
           ) : sortedItems.length === 0 ? (
             <div className="text-neutral-500 border border-dashed border-neutral-800 rounded-xl py-16 text-center">
-              Нет предметов по заданным условиям.
+              {t('home.noItems')}
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">

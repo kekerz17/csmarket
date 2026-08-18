@@ -1,28 +1,13 @@
 import type { CategoryCount } from '../api';
+import { translate, useT } from '../i18n';
+import { useLanguage, type Language } from '../context/LanguageContext';
 
 // Человекочитаемые названия для категорий, которые Steam отдаёт в теге "Type".
-// Категории, которых нет в этой карте, показываются как есть (на английском).
-const CATEGORY_LABELS: Record<string, string> = {
-  Rifle: 'Винтовки',
-  'Sniper Rifle': 'Снайперские винтовки',
-  Pistol: 'Пистолеты',
-  SMG: 'Пистолеты-пулемёты',
-  Shotgun: 'Дробовики',
-  Machinegun: 'Пулемёты',
-  Knife: 'Ножи',
-  Gloves: 'Перчатки',
-  Sticker: 'Стикеры',
-  Container: 'Кейсы',
-  Agent: 'Агенты',
-  Collectible: 'Коллекционные',
-  Graffiti: 'Граффити',
-  'Music Kit': 'Наборы музыки',
-  Patch: 'Патчи',
-  Key: 'Ключи',
-};
-
-export function categoryLabel(category: string): string {
-  return CATEGORY_LABELS[category] ?? category;
+// Категории, которых нет в словаре, показываются как есть (на английском).
+export function categoryLabel(category: string, language: Language): string {
+  const key = `category.${category}`;
+  const translated = translate(language, key);
+  return translated === key ? category : translated;
 }
 
 interface CategorySidebarProps {
@@ -33,9 +18,12 @@ interface CategorySidebarProps {
 }
 
 export default function CategorySidebar({ categories, active, onSelect, totalCount }: CategorySidebarProps) {
+  const { language } = useLanguage();
+  const t = useT();
+
   return (
     <nav className="w-full md:w-56 shrink-0">
-      <div className="text-xs uppercase tracking-wide text-neutral-600 mb-2 px-1">Категории</div>
+      <div className="text-xs uppercase tracking-wide text-neutral-600 mb-2 px-1">{t('sidebar.categories')}</div>
       <ul className="space-y-1">
         <li>
           <button
@@ -46,7 +34,7 @@ export default function CategorySidebar({ categories, active, onSelect, totalCou
                 : 'text-neutral-300 hover:bg-white/5'
             }`}
           >
-            <span>Все категории</span>
+            <span>{t('sidebar.all')}</span>
             <span className="text-xs opacity-60">{totalCount}</span>
           </button>
         </li>
@@ -60,7 +48,7 @@ export default function CategorySidebar({ categories, active, onSelect, totalCou
                   : 'text-neutral-300 hover:bg-white/5'
               }`}
             >
-              <span>{categoryLabel(c.category)}</span>
+              <span>{categoryLabel(c.category, language)}</span>
               <span className="text-xs opacity-60">{c.count}</span>
             </button>
           </li>
