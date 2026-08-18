@@ -74,12 +74,6 @@ export default function ItemCard({ item }: { item: Item }) {
           )}
         </span>
         <span className="flex items-center gap-1.5 shrink-0">
-          <span
-            className="text-[10px] px-2 py-0.5 rounded-full border font-medium"
-            style={{ borderColor: `${rarity}80`, color: rarity }}
-          >
-            {t('item.cryptoBadge')}
-          </span>
           <button
             onClick={(e) => {
               e.preventDefault();
