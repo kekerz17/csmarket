@@ -68,6 +68,7 @@ const ru: Dict = {
   'profile.depositNote':
     'Сумма всегда в USD/USDT — пополнение и баланс не зависят от выбранной валюты отображения.',
   'profile.depositError': 'Не удалось создать депозит',
+  'profile.findTradeUrl': 'Найти ссылку',
   'profile.tradeUrlTitle': 'Steam Trade URL',
   'profile.tradeUrlDesc':
     'Нужна для автоматической выдачи скинов. Найти можно на steamcommunity.com в настройках инвентаря → «Обмен».',
@@ -197,6 +198,7 @@ const en: Dict = {
   'profile.depositButton': 'Top up balance',
   'profile.depositNote': "The amount is always in USD/USDT — deposits and balance don't depend on the display currency you've selected.",
   'profile.depositError': 'Failed to create deposit',
+  'profile.findTradeUrl': 'Find my link',
   'profile.tradeUrlTitle': 'Steam Trade URL',
   'profile.tradeUrlDesc':
     'Needed for automatic skin delivery. You can find it on steamcommunity.com under inventory settings → "Trade Offers".',

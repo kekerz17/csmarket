@@ -148,6 +148,14 @@ export default function Profile() {
             placeholder="https://steamcommunity.com/tradeoffer/new/?partner=...&token=..."
             className={inputClass}
           />
+          <a
+            href="https://steamcommunity.com/my/tradeoffers/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 flex items-center rounded-lg bg-neutral-800 hover:bg-neutral-700 px-4 py-2.5 text-sm font-medium transition-colors whitespace-nowrap"
+          >
+            {t('profile.findTradeUrl')}
+          </a>
           <button
             type="submit"
             className="shrink-0 rounded-lg bg-neutral-800 hover:bg-neutral-700 px-4 py-2.5 text-sm font-medium transition-colors"
