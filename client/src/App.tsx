@@ -14,6 +14,8 @@ import { useCurrency, type Currency } from './context/CurrencyContext';
 import { useLanguage, type Language } from './context/LanguageContext';
 import { useT } from './i18n';
 import { api, API_ORIGIN, clearUserToken } from './api';
+import { useOnlineCount } from './useOnlineCount';
+import { pluralRu } from './pluralRu';
 
 function LanguageSelector() {
   const { language, setLanguage } = useLanguage();
@@ -127,6 +129,22 @@ function HeaderAuth() {
   );
 }
 
+function OnlineCount() {
+  const online = useOnlineCount();
+  const { language } = useLanguage();
+
+  if (online == null) return null;
+
+  return (
+    <span className="flex items-center gap-1.5">
+      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+      {language === 'ru'
+        ? `${online} ${pluralRu(online, 'пользователь', 'пользователя', 'пользователей')} онлайн`
+        : `${online} online`}
+    </span>
+  );
+}
+
 export default function App() {
   const t = useT();
   return (
@@ -166,6 +184,7 @@ export default function App() {
       <footer className="border-t border-white/5 mt-12">
         <div className="max-w-6xl mx-auto px-6 py-6 text-xs text-neutral-600 flex flex-col sm:flex-row items-center justify-between gap-3">
           <span>{t('footer.tagline')}</span>
+          <OnlineCount />
           <span>{t('footer.holdNote')}</span>
           <div className="flex items-center gap-4 shrink-0">
             <a href="mailto:lev2009177@gmail.com" className="text-neutral-400 hover:text-emerald-400 transition-colors">

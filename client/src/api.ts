@@ -132,6 +132,7 @@ export const api = {
   },
   listCategories: () => request<CategoryCount[]>('/items/meta/categories'),
   getExchangeRates: () => request<ExchangeRates>('/settings/exchange-rates'),
+  heartbeat: (id: string) => request<{ online: number }>('/presence/heartbeat', { method: 'POST', body: JSON.stringify({ id }) }),
   getItem: (assetId: string) => request<Item>(`/items/${assetId}`),
   getOrder: (id: string) => request<Order>(`/orders/${id}`),
 

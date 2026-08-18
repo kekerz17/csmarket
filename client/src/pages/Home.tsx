@@ -5,18 +5,10 @@ import Filters from '../components/Filters';
 import CategorySidebar, { categoryLabel } from '../components/CategorySidebar';
 import { useLanguage } from '../context/LanguageContext';
 import { useT } from '../i18n';
+import { pluralRu } from '../pluralRu';
 
 type SortBy = 'default' | 'price_asc' | 'price_desc' | 'discount';
 const SORT_KEYS: SortBy[] = ['default', 'price_asc', 'price_desc', 'discount'];
-
-// Русское склонение существительного после числа — "1 предмет", "2 предмета", "5 предметов".
-function itemsWordRu(n: number): string {
-  const mod10 = n % 10;
-  const mod100 = n % 100;
-  if (mod10 === 1 && mod100 !== 11) return 'предмет';
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'предмета';
-  return 'предметов';
-}
 
 export default function Home() {
   const t = useT();
@@ -73,7 +65,7 @@ export default function Home() {
             {totalCount > 0 && (
               <span className="text-neutral-300">
                 {language === 'ru'
-                  ? `Сейчас в продаже ${totalCount} ${itemsWordRu(totalCount)}.`
+                  ? `Сейчас в продаже ${totalCount} ${pluralRu(totalCount, 'предмет', 'предмета', 'предметов')}.`
                   : `Currently ${totalCount} item${totalCount === 1 ? '' : 's'} available.`}
               </span>
             )}
