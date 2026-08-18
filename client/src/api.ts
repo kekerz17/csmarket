@@ -162,6 +162,7 @@ export const api = {
   getExchangeRates: () => request<ExchangeRates>('/settings/exchange-rates'),
   heartbeat: (id: string) => request<{ online: number }>('/presence/heartbeat', { method: 'POST', body: JSON.stringify({ id }) }),
   getItem: (assetId: string) => request<Item>(`/items/${assetId}`),
+  getSimilarItems: (assetId: string) => request<Item[]>(`/items/${assetId}/similar`),
   getOrder: (id: string) => request<Order>(`/orders/${id}`),
 
   // --- Покупатель: авторизация через Steam --------------------------------

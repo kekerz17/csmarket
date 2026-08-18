@@ -60,6 +60,7 @@ const ru: Dict = {
   'category.Key': 'Ключи',
 
   'item.backToAll': '← Ко всем предметам',
+  'item.similar': 'Похожие предметы',
   'item.stickers': 'Наклейки',
   'item.payUsdt': 'оплата криптовалютой',
   'item.cryptoBadge': 'Крипто',
@@ -208,6 +209,7 @@ const en: Dict = {
   'category.Key': 'Keys',
 
   'item.backToAll': '← All items',
+  'item.similar': 'Similar items',
   'item.stickers': 'Stickers',
   'item.payUsdt': 'payment in crypto',
   'item.cryptoBadge': 'Crypto',

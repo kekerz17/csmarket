@@ -83,4 +83,33 @@ router.get('/:assetId', async (req, res) => {
   res.json(item);
 });
 
+// Похожие предметы — сначала та же категория, затем ближе по цене. Инвентарь
+// у нас небольшой (личная коллекция, не биржа), поэтому сортируем в памяти,
+// а не через хитрый SQL — так проще и для такого объёма данных быстрее, чем
+// того стоит отдельный индекс/raw-запрос.
+router.get('/:assetId/similar', async (req, res) => {
+  const item = await prisma.item.findUnique({ where: { assetId: req.params.assetId } });
+  if (!item) {
+    res.status(404).json({ error: 'Не найдено' });
+    return;
+  }
+
+  const candidates = await prisma.item.findMany({
+    where: { listed: true, status: 'AVAILABLE', priceUsd: { not: null }, id: { not: item.id } },
+  });
+
+  const basePrice = item.priceUsd ?? 0;
+  const similar = candidates
+    .map((c) => {
+      const categoryPenalty = c.category && c.category === item.category ? 0 : 100;
+      const priceDiff = Math.abs((c.priceUsd ?? 0) - basePrice) / Math.max(basePrice, 1);
+      return { item: c, score: categoryPenalty + priceDiff };
+    })
+    .sort((a, b) => a.score - b.score)
+    .slice(0, 6)
+    .map((s) => s.item);
+
+  res.json(similar);
+});
+
 export default router;

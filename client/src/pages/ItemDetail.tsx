@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { api, API_ORIGIN, Item, User, getDiscountPercent, parseStickers } from '../api';
 import { categoryLabel } from '../components/CategorySidebar';
+import ItemCard from '../components/ItemCard';
 import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -11,6 +12,7 @@ import { useT } from '../i18n';
 export default function ItemDetail() {
   const { assetId } = useParams<{ assetId: string }>();
   const [item, setItem] = useState<Item | null>(null);
+  const [similar, setSimilar] = useState<Item[]>([]);
   const [buying, setBuying] = useState(false);
   const [buyError, setBuyError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -22,7 +24,9 @@ export default function ItemDetail() {
   useEffect(() => {
     if (!assetId) return;
     setItem(null);
+    setSimilar([]);
     api.getItem(assetId).then(setItem).catch(console.error);
+    api.getSimilarItems(assetId).then(setSimilar).catch(console.error);
   }, [assetId]);
 
   if (!item) {
@@ -155,6 +159,17 @@ export default function ItemDetail() {
           </div>
         </div>
       </div>
+
+      {similar.length > 0 && (
+        <div className="mt-12">
+          <h2 className="text-sm font-semibold text-neutral-200 mb-4">{t('item.similar')}</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {similar.map((s) => (
+              <ItemCard key={s.id} item={s} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
