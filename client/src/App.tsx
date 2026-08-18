@@ -27,10 +27,10 @@ function LanguageSelector() {
       className="bg-transparent text-neutral-400 hover:text-neutral-200 text-sm border border-white/10 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-emerald-500/60 cursor-pointer"
     >
       <option className="bg-neutral-900" value="ru">
-        RU
+        🇷🇺 RU
       </option>
       <option className="bg-neutral-900" value="en">
-        EN
+        🇺🇸 EN
       </option>
     </select>
   );
