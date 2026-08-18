@@ -47,6 +47,33 @@ router.get('/meta/categories', async (_req, res) => {
   res.json(categories);
 });
 
+// Лента последних сделок для витрины (в стиле lis-skins/CS.MONEY) — только
+// реально завершённые заказы, без выдуманных чисел. Должен быть объявлен
+// раньше "/:assetId" по той же причине, что и "/meta/categories" выше.
+router.get('/meta/recent-sales', async (_req, res) => {
+  const [sales, total] = await Promise.all([
+    prisma.order.findMany({
+      where: { status: 'COMPLETED' },
+      include: { item: true },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+    }),
+    prisma.order.count({ where: { status: 'COMPLETED' } }),
+  ]);
+
+  res.json({
+    total,
+    sales: sales.map((o) => ({
+      id: o.id,
+      priceUsd: o.priceUsd,
+      name: o.item.name,
+      iconUrl: o.item.iconUrl,
+      exterior: o.item.exterior,
+      rarityColor: o.item.rarityColor,
+    })),
+  });
+});
+
 router.get('/:assetId', async (req, res) => {
   const item = await prisma.item.findUnique({ where: { assetId: req.params.assetId } });
   if (!item || !item.listed) {

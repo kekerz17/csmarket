@@ -16,6 +16,7 @@ import { useT } from './i18n';
 import { api, API_ORIGIN, clearUserToken } from './api';
 import { useOnlineCount } from './useOnlineCount';
 import { pluralRu } from './pluralRu';
+import RecentSales from './components/RecentSales';
 
 function LanguageSelector() {
   const { language, setLanguage } = useLanguage();
@@ -180,6 +181,8 @@ export default function App() {
           <Route path="/admin/orders" element={<AdminOrders />} />
         </Routes>
       </main>
+
+      <RecentSales />
 
       <footer className="border-t border-white/5 mt-12">
         <div className="max-w-6xl mx-auto px-6 py-6 text-xs text-neutral-600 flex flex-col sm:flex-row items-center justify-between gap-3">

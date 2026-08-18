@@ -10,6 +10,9 @@ const ru: Dict = {
   'footer.tagline': 'Girgich Store — предметы из личного инвентаря Steam',
   'footer.holdNote': 'Выдача автоматическая, трейд-холд зависит от настроек вашего аккаунта Steam',
 
+  'recentSales.title': 'Последние сделки',
+  'recentSales.totalSold': 'Всего продано скинов:',
+
   'home.heroTitle': 'Скины CS2 по лучшим ценам',
   'home.heroSubtitle': 'Мгновенная автоматическая выдача трейд-оффером, оплата криптовалютой.',
   'home.categoryPrefix': 'Категория:',
@@ -141,6 +144,9 @@ const en: Dict = {
   'header.admin': 'Admin',
   'footer.tagline': 'Girgich Store — items from a personal Steam inventory',
   'footer.holdNote': "Delivery is automatic; trade hold depends on your Steam account's settings",
+
+  'recentSales.title': 'Recent sales',
+  'recentSales.totalSold': 'Total items sold:',
 
   'home.heroTitle': 'CS2 skins at the best prices',
   'home.heroSubtitle': 'Instant automatic delivery via trade offer, payment in crypto.',

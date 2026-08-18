@@ -56,6 +56,19 @@ export interface Item {
   status: string;
 }
 
+const EXTERIOR_CODES: Record<string, string> = {
+  'Factory New': 'FN',
+  'Minimal Wear': 'MW',
+  'Field-Tested': 'FT',
+  'Well-Worn': 'WW',
+  'Battle-Scarred': 'BS',
+};
+
+export function exteriorCode(exterior: string | null): string | null {
+  if (!exterior) return null;
+  return EXTERIOR_CODES[exterior] ?? null;
+}
+
 export function parseStickers(item: Pick<Item, 'stickersJson'>): Sticker[] {
   if (!item.stickersJson) return [];
   try {
@@ -120,6 +133,20 @@ export interface ExchangeRates {
   EUR: number;
 }
 
+export interface RecentSale {
+  id: string;
+  priceUsd: number;
+  name: string;
+  iconUrl: string;
+  exterior: string | null;
+  rarityColor: string | null;
+}
+
+export interface RecentSalesResponse {
+  total: number;
+  sales: RecentSale[];
+}
+
 export const api = {
   listItems: (params?: { search?: string; minPrice?: number; maxPrice?: number; category?: string }) => {
     const qs = new URLSearchParams();
@@ -131,6 +158,7 @@ export const api = {
     return request<Item[]>(`/items${suffix}`);
   },
   listCategories: () => request<CategoryCount[]>('/items/meta/categories'),
+  getRecentSales: () => request<RecentSalesResponse>('/items/meta/recent-sales'),
   getExchangeRates: () => request<ExchangeRates>('/settings/exchange-rates'),
   heartbeat: (id: string) => request<{ online: number }>('/presence/heartbeat', { method: 'POST', body: JSON.stringify({ id }) }),
   getItem: (assetId: string) => request<Item>(`/items/${assetId}`),
