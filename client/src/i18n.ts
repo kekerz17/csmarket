@@ -11,7 +11,7 @@ const ru: Dict = {
   'footer.holdNote': 'Выдача автоматическая, трейд-холд зависит от настроек вашего аккаунта Steam',
 
   'home.heroTitle': 'Скины CS2 по лучшим ценам',
-  'home.heroSubtitle': 'Мгновенная автоматическая выдача трейд-оффером, оплата в USDT.',
+  'home.heroSubtitle': 'Мгновенная автоматическая выдача трейд-оффером, оплата криптовалютой.',
   'home.categoryPrefix': 'Категория:',
   'home.noItems': 'Нет предметов по заданным условиям.',
   'home.sort.default': 'По умолчанию',
@@ -45,7 +45,8 @@ const ru: Dict = {
 
   'item.backToAll': '← Ко всем предметам',
   'item.stickers': 'Наклейки',
-  'item.payUsdt': 'оплата в USDT',
+  'item.payUsdt': 'оплата криптовалютой',
+  'item.cryptoBadge': 'Крипто',
   'item.discountFromMarket': '-{pct}% от рынка',
   'item.demoFloatTitle': 'Демо-значение: бот ещё не подключен, реальный float не запрошен у Steam',
   'item.demoFloatLabel': '(демо, не реальные данные)',
@@ -66,7 +67,7 @@ const ru: Dict = {
   'profile.creatingInvoice': 'Создаём счёт...',
   'profile.depositButton': 'Пополнить баланс',
   'profile.depositNote':
-    'Сумма всегда в USD/USDT — пополнение и баланс не зависят от выбранной валюты отображения.',
+    'Сумма всегда в USD — пополнение и баланс не зависят от выбранной валюты отображения.',
   'profile.depositError': 'Не удалось создать депозит',
   'profile.findTradeUrl': 'Найти ссылку',
   'profile.tradeUrlTitle': 'Steam Trade URL',
@@ -95,7 +96,7 @@ const ru: Dict = {
     'Продавец отправляет трейд-офферы вручную — это может занять некоторое время. Проверьте уведомления в Steam чуть позже.',
 
   'deposit.back': '← В профиль',
-  'deposit.caption': 'пополнение баланса в USDT',
+  'deposit.caption': 'пополнение баланса криптовалютой',
   'deposit.status.PENDING': 'Ожидание оплаты',
   'deposit.status.COMPLETED': 'Зачислено на баланс',
   'deposit.status.FAILED': 'Оплата не прошла',
@@ -105,12 +106,12 @@ const ru: Dict = {
   'faq.subtitle': 'Если ответа на ваш вопрос тут нет — свяжитесь с продавцом напрямую.',
   'faq.q1': 'Как купить скин?',
   'faq.a1':
-    'Войдите через Steam (кнопка в шапке сайта), укажите в профиле свою Steam Trade URL, пополните баланс в USDT и нажмите «Купить» на нужном предмете. Сумма спишется с баланса, а скин отправится вам трейд-оффером в Steam.',
+    'Войдите через Steam (кнопка в шапке сайта), укажите в профиле свою Steam Trade URL, пополните баланс криптовалютой и нажмите «Купить» на нужном предмете. Сумма спишется с баланса, а скин отправится вам трейд-оффером в Steam.',
   'faq.q2': 'Нужна ли отдельная регистрация и пароль?',
   'faq.a2': 'Нет. Вход только через ваш Steam-аккаунт — отдельного логина и пароля для сайта не существует.',
   'faq.q3': 'Как пополнить баланс?',
   'faq.a3':
-    'В разделе «Профиль» введите сумму и оплатите в USDT через криптоплатёжный сервис. Баланс зачисляется автоматически, как только сеть подтвердит платёж — обычно несколько минут.',
+    'В разделе «Профиль» введите сумму и оплатите удобной криптовалютой через платёжный сервис NOWPayments. Баланс зачисляется автоматически, как только сеть подтвердит платёж — обычно несколько минут.',
   'faq.q4': 'Что такое Trade URL и зачем он нужен?',
   'faq.a4':
     'Это ссылка, по которой Steam понимает, кому отправлять обмен предметами. Найти её можно в Steam → Инвентарь → настройки → «Обмен». Без указанной Trade URL сайт не сможет отправить вам купленный скин.',
@@ -142,7 +143,7 @@ const en: Dict = {
   'footer.holdNote': "Delivery is automatic; trade hold depends on your Steam account's settings",
 
   'home.heroTitle': 'CS2 skins at the best prices',
-  'home.heroSubtitle': 'Instant automatic delivery via trade offer, payment in USDT.',
+  'home.heroSubtitle': 'Instant automatic delivery via trade offer, payment in crypto.',
   'home.categoryPrefix': 'Category:',
   'home.noItems': 'No items match the current filters.',
   'home.sort.default': 'Default',
@@ -176,7 +177,8 @@ const en: Dict = {
 
   'item.backToAll': '← All items',
   'item.stickers': 'Stickers',
-  'item.payUsdt': 'payment in USDT',
+  'item.payUsdt': 'payment in crypto',
+  'item.cryptoBadge': 'Crypto',
   'item.discountFromMarket': '-{pct}% off market',
   'item.demoFloatTitle': "Demo value: bot isn't connected yet, real float hasn't been requested from Steam",
   'item.demoFloatLabel': '(demo, not real data)',
@@ -196,7 +198,7 @@ const en: Dict = {
   'profile.balance': 'Balance',
   'profile.creatingInvoice': 'Creating invoice...',
   'profile.depositButton': 'Top up balance',
-  'profile.depositNote': "The amount is always in USD/USDT — deposits and balance don't depend on the display currency you've selected.",
+  'profile.depositNote': "The amount is always in USD — deposits and balance don't depend on the display currency you've selected.",
   'profile.depositError': 'Failed to create deposit',
   'profile.findTradeUrl': 'Find my link',
   'profile.tradeUrlTitle': 'Steam Trade URL',
@@ -225,7 +227,7 @@ const en: Dict = {
     'The seller sends trade offers manually — this may take a little while. Check your Steam notifications shortly.',
 
   'deposit.back': '← Back to profile',
-  'deposit.caption': 'balance top-up in USDT',
+  'deposit.caption': 'balance top-up via crypto',
   'deposit.status.PENDING': 'Awaiting payment',
   'deposit.status.COMPLETED': 'Credited to balance',
   'deposit.status.FAILED': 'Payment failed',
@@ -235,12 +237,12 @@ const en: Dict = {
   'faq.subtitle': "If you don't find your answer here, contact the seller directly.",
   'faq.q1': 'How do I buy a skin?',
   'faq.a1':
-    'Log in with Steam (button in the site header), add your Steam Trade URL in your profile, top up your balance in USDT, and click "Buy" on the item you want. The amount is deducted from your balance and the skin is sent to you as a Steam trade offer.',
+    'Log in with Steam (button in the site header), add your Steam Trade URL in your profile, top up your balance with crypto, and click "Buy" on the item you want. The amount is deducted from your balance and the skin is sent to you as a Steam trade offer.',
   'faq.q2': 'Do I need a separate registration and password?',
   'faq.a2': "No. You can only log in with your Steam account — there's no separate site login or password.",
   'faq.q3': 'How do I top up my balance?',
   'faq.a3':
-    'On the "Profile" page, enter an amount and pay in USDT through the crypto payment service. Your balance is credited automatically as soon as the network confirms the payment — usually within a few minutes.',
+    'On the "Profile" page, enter an amount and pay with whichever cryptocurrency is convenient through the NOWPayments payment service. Your balance is credited automatically as soon as the network confirms the payment — usually within a few minutes.',
   'faq.q4': 'What is a Trade URL and why do I need it?',
   'faq.a4':
     "It's the link Steam uses to know who to send item trades to. You can find it in Steam → Inventory → Settings → \"Trade Offers\". Without a Trade URL on file, the site can't send you the skin you bought.",

@@ -74,7 +74,7 @@ export default function ItemCard({ item }: { item: Item }) {
           className="text-[10px] px-2 py-0.5 rounded-full border font-medium"
           style={{ borderColor: `${rarity}80`, color: rarity }}
         >
-          USDT
+          {t('item.cryptoBadge')}
         </span>
       </div>
     </Link>
