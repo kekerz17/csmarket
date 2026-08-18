@@ -11,6 +11,11 @@ datasource db {
 model Item {
   id                   String   @id @default(cuid())
   assetId              String   @unique
+  // SteamID64 аккаунта, из чьего инвентаря пришёл предмет — сайт может
+  // продавать сразу из нескольких Steam-аккаунтов (см. env.steamOwnerIds),
+  // и для ручной выдачи важно понимать, в какой именно аккаунт заходить,
+  // чтобы отправить трейд с этим конкретным предметом.
+  ownerSteamId64       String   @default("76561199144809767")
   classId              String
   instanceId           String
   marketHashName       String

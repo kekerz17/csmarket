@@ -40,6 +40,7 @@ export interface Sticker {
 export interface Item {
   id: string;
   assetId: string;
+  ownerSteamId64: string;
   marketHashName: string;
   name: string;
   iconUrl: string;

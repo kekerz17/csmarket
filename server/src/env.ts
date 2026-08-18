@@ -7,6 +7,17 @@ export const env = {
   clientUrl: process.env.CLIENT_URL ?? 'http://localhost:5173',
   publicApiUrl: process.env.PUBLIC_API_URL ?? `http://localhost:${port}`,
   steamOwnerId64: process.env.STEAM_OWNER_ID64 ?? '76561199144809767',
+  // Сайт может продавать предметы сразу из нескольких Steam-аккаунтов —
+  // основной задаётся STEAM_OWNER_ID64 (как раньше), а дополнительные через
+  // запятую в STEAM_OWNER_ID64_EXTRA, напр. "76561199114531166,765611...".
+  get steamOwnerIds(): string[] {
+    const primary = process.env.STEAM_OWNER_ID64 ?? '76561199144809767';
+    const extra = (process.env.STEAM_OWNER_ID64_EXTRA ?? '')
+      .split(',')
+      .map((id) => id.trim())
+      .filter(Boolean);
+    return Array.from(new Set([primary, ...extra]));
+  },
   // По умолчанию раз в сутки — синхронизация чаще нужна редко (инвентарь
   // продавца не меняется поминутно), а более частые опросы Steam увеличивают
   // риск временных 429 от Steam на нестабильных/дата-центровых IP.

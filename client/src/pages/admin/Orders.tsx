@@ -44,6 +44,7 @@ export default function AdminOrders() {
           <tr>
             <th className="py-2">ID</th>
             <th>Предмет</th>
+            <th>Аккаунт-продавец</th>
             <th>Цена</th>
             <th>Статус</th>
             <th>Покупатель</th>
@@ -58,6 +59,21 @@ export default function AdminOrders() {
               <td className="flex items-center gap-2 py-2">
                 {order.item?.iconUrl && <img src={order.item.iconUrl} className="w-8 h-8 object-contain" alt="" />}
                 {order.item?.name}
+              </td>
+              <td>
+                {order.item?.ownerSteamId64 ? (
+                  <a
+                    href={`https://steamcommunity.com/profiles/${order.item.ownerSteamId64}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-neutral-500 hover:text-neutral-300 underline text-xs"
+                    title="Отправлять трейд нужно именно с этого Steam-аккаунта — там сейчас лежит предмет"
+                  >
+                    {order.item.ownerSteamId64}
+                  </a>
+                ) : (
+                  '—'
+                )}
               </td>
               <td>${order.priceUsd.toFixed(2)}</td>
               <td>

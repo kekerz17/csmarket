@@ -145,6 +145,7 @@ export default function AdminDashboard() {
         <thead className="text-neutral-400 text-left">
           <tr>
             <th className="py-2">Предмет</th>
+            <th>Аккаунт</th>
             <th>Статус</th>
             <th>Float</th>
             <th>Наклейки</th>
@@ -159,6 +160,16 @@ export default function AdminDashboard() {
               <td className="py-2 flex items-center gap-2">
                 <img src={item.iconUrl} className="w-8 h-8 object-contain" alt="" />
                 {item.name}
+              </td>
+              <td>
+                <a
+                  href={`https://steamcommunity.com/profiles/${item.ownerSteamId64}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-neutral-500 hover:text-neutral-300 underline text-xs"
+                >
+                  {item.ownerSteamId64}
+                </a>
               </td>
               <td className="text-neutral-400">{item.status}</td>
               <td>

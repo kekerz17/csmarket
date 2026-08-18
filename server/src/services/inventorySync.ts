@@ -94,11 +94,11 @@ function getAppliedStickers(desc: SteamDescription): AppliedSticker[] {
   return stickers;
 }
 
-async function fetchInventoryPage(startAssetId?: string): Promise<SteamInventoryResponse> {
+async function fetchInventoryPage(ownerSteamId64: string, startAssetId?: string): Promise<SteamInventoryResponse> {
   const params = new URLSearchParams({ l: 'english', count: String(PAGE_SIZE) });
   if (startAssetId) params.set('start_assetid', startAssetId);
 
-  const url = `https://steamcommunity.com/inventory/${env.steamOwnerId64}/730/2?${params}`;
+  const url = `https://steamcommunity.com/inventory/${ownerSteamId64}/730/2?${params}`;
   const res = await fetch(url, { headers: STEAM_HEADERS, signal: AbortSignal.timeout(15000) });
   if (!res.ok) {
     throw new Error(`Steam inventory request failed with status code ${res.status}`);
@@ -106,15 +106,21 @@ async function fetchInventoryPage(startAssetId?: string): Promise<SteamInventory
   return res.json();
 }
 
-export async function syncInventoryOnce() {
+// Синхронизирует один Steam-аккаунт. "Пропавшие"/появившиеся предметы
+// считаются отдельно для каждого аккаунта — иначе временный сбой Steam на
+// одном из нескольких аккаунтов мог бы испортить безопасный порог (см. ниже)
+// и для остальных.
+async function syncOneOwner(ownerSteamId64: string) {
   const assets: SteamAsset[] = [];
   const descriptions: SteamDescription[] = [];
   let startAssetId: string | undefined;
 
   do {
-    const page = await fetchInventoryPage(startAssetId);
+    const page = await fetchInventoryPage(ownerSteamId64, startAssetId);
     if (!page.success || !page.assets || !page.descriptions) {
-      console.warn('[inventorySync] Steam вернул пустой или приватный инвентарь — проверьте, что инвентарь публичный');
+      console.warn(
+        `[inventorySync] Steam вернул пустой или приватный инвентарь для ${ownerSteamId64} — проверьте, что инвентарь публичный`,
+      );
       return;
     }
     assets.push(...page.assets);
@@ -139,6 +145,7 @@ export async function syncInventoryOnce() {
       where: { assetId: asset.assetid },
       create: {
         assetId: asset.assetid,
+        ownerSteamId64,
         classId: asset.classid,
         instanceId: asset.instanceid,
         marketHashName: desc.market_hash_name,
@@ -153,6 +160,7 @@ export async function syncInventoryOnce() {
         stickersJson,
       },
       update: {
+        ownerSteamId64,
         category: getCategory(desc) ?? null,
         rarity: rarity?.localized_tag_name ?? null,
         rarityColor: rarity?.color ?? null,
@@ -169,36 +177,42 @@ export async function syncInventoryOnce() {
   // автоматически, без вмешательства админа.
   if (seenAssetIds.length > 0) {
     await prisma.item.updateMany({
-      where: { assetId: { in: seenAssetIds }, status: 'REMOVED' },
+      where: { assetId: { in: seenAssetIds }, status: 'REMOVED', ownerSteamId64 },
       data: { status: 'AVAILABLE' },
     });
   }
 
-  const currentAvailableCount = await prisma.item.count({ where: { status: 'AVAILABLE' } });
+  const currentAvailableCount = await prisma.item.count({ where: { status: 'AVAILABLE', ownerSteamId64 } });
 
   // Защита от затирания витрины на неполном/флейки ответе Steam — например,
   // временный 429 на части страниц пагинации. Если увидели заметно меньше
-  // товаров, чем сейчас числится доступными, этот прогон считаем ненадёжным
-  // и НЕ снимаем ничего с продажи: лучше показать чуть устаревшие данные,
-  // чем ошибочно убрать реальные товары с витрины.
+  // товаров, чем сейчас числится доступными у этого аккаунта, этот прогон
+  // считаем ненадёжным и НЕ снимаем ничего с продажи: лучше показать чуть
+  // устаревшие данные, чем ошибочно убрать реальные товары с витрины.
   const seemsUnreliable = currentAvailableCount > 0 && seenAssetIds.length < currentAvailableCount * 0.5;
 
   if (seemsUnreliable) {
     console.warn(
-      `[inventorySync] Похоже на неполный ответ Steam (видно ${seenAssetIds.length} из ${currentAvailableCount} доступных товаров) — пропускаю снятие "пропавших" предметов в этот раз`,
+      `[inventorySync] Похоже на неполный ответ Steam для ${ownerSteamId64} (видно ${seenAssetIds.length} из ${currentAvailableCount} доступных товаров) — пропускаю снятие "пропавших" предметов в этот раз`,
     );
   } else {
     const missing = await prisma.item.findMany({
-      where: { status: 'AVAILABLE', assetId: { notIn: seenAssetIds } },
+      where: { status: 'AVAILABLE', ownerSteamId64, assetId: { notIn: seenAssetIds } },
     });
 
     for (const item of missing) {
       await prisma.item.update({ where: { id: item.id }, data: { status: 'REMOVED', listed: false } });
-      console.log(`[inventorySync] ${item.marketHashName} (${item.assetId}) больше не в инвентаре — снят с продажи`);
+      console.log(`[inventorySync] ${item.marketHashName} (${item.assetId}) больше не в инвентаре ${ownerSteamId64} — снят с продажи`);
     }
   }
 
-  console.log(`[inventorySync] Синхронизировано предметов: ${seenAssetIds.length}`);
+  console.log(`[inventorySync] ${ownerSteamId64}: синхронизировано предметов: ${seenAssetIds.length}`);
+}
+
+export async function syncInventoryOnce() {
+  for (const ownerSteamId64 of env.steamOwnerIds) {
+    await syncOneOwner(ownerSteamId64);
+  }
 }
 
 export function startInventorySync() {
