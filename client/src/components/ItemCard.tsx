@@ -25,29 +25,6 @@ export default function ItemCard({ item }: { item: Item }) {
         style={{ background: `linear-gradient(90deg, transparent, ${rarity}, transparent)` }}
       />
 
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          if (!inCart) addItem(item);
-        }}
-        title={inCart ? t('cart.inCart') : t('cart.addToCart')}
-        className={`absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-full flex items-center justify-center border transition-colors ${
-          inCart
-            ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400'
-            : 'bg-neutral-900/80 border-white/10 text-neutral-400 hover:text-emerald-400 hover:border-emerald-500/40'
-        }`}
-      >
-        {inCart ? (
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-        ) : (
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-        )}
-      </button>
-
       <div className="relative h-32 mb-3 flex items-center justify-center">
         <span
           className="absolute inset-0 rounded-full blur-2xl opacity-20 group-hover:opacity-35 transition-opacity"
@@ -96,11 +73,35 @@ export default function ItemCard({ item }: { item: Item }) {
             <span className="text-xs text-neutral-600 line-through">{format(item.suggestedMarketPrice)}</span>
           )}
         </span>
-        <span
-          className="text-[10px] px-2 py-0.5 rounded-full border font-medium"
-          style={{ borderColor: `${rarity}80`, color: rarity }}
-        >
-          {t('item.cryptoBadge')}
+        <span className="flex items-center gap-1.5 shrink-0">
+          <span
+            className="text-[10px] px-2 py-0.5 rounded-full border font-medium"
+            style={{ borderColor: `${rarity}80`, color: rarity }}
+          >
+            {t('item.cryptoBadge')}
+          </span>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              if (!inCart) addItem(item);
+            }}
+            title={inCart ? t('cart.inCart') : t('cart.addToCart')}
+            className={`w-6 h-6 rounded-full flex items-center justify-center border transition-colors ${
+              inCart
+                ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400'
+                : 'bg-neutral-800 border-white/10 text-neutral-400 hover:text-emerald-400 hover:border-emerald-500/40'
+            }`}
+          >
+            {inCart ? (
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            ) : (
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+            )}
+          </button>
         </span>
       </div>
     </Link>
