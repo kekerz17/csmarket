@@ -6,12 +6,14 @@ import Profile from './pages/Profile';
 import OrderStatus from './pages/OrderStatus';
 import DepositStatus from './pages/DepositStatus';
 import Faq from './pages/Faq';
+import Cart from './pages/Cart';
 import AdminLogin from './pages/admin/Login';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminOrders from './pages/admin/Orders';
 import { useAuth } from './context/AuthContext';
 import { useCurrency, type Currency } from './context/CurrencyContext';
 import { useLanguage, type Language } from './context/LanguageContext';
+import { useCart } from './context/CartContext';
 import { useT } from './i18n';
 import { api, API_ORIGIN, clearUserToken } from './api';
 import { useOnlineCount } from './useOnlineCount';
@@ -112,6 +114,26 @@ function CurrencySelector() {
         € EUR
       </option>
     </select>
+  );
+}
+
+function CartLink() {
+  const { items } = useCart();
+  return (
+    <Link to="/cart" className="relative flex items-center text-neutral-400 hover:text-neutral-200 transition-colors">
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M2.25 3h1.386c.51 0 .955.343 1.087.836l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 1.994-4.694 2.602-7.174.135-.552-.283-1.076-.85-1.076H5.25M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
+        />
+      </svg>
+      {items.length > 0 && (
+        <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-emerald-500 text-neutral-950 text-[10px] font-bold flex items-center justify-center">
+          {items.length}
+        </span>
+      )}
+    </Link>
   );
 }
 
@@ -218,6 +240,7 @@ export default function App() {
           <div className="flex items-center gap-4">
             <LanguageSelector />
             <CurrencySelector />
+            <CartLink />
             <Link to="/admin" className="hidden sm:inline text-xs text-neutral-600 hover:text-neutral-400 transition-colors">
               {t('header.admin')}
             </Link>
@@ -234,6 +257,7 @@ export default function App() {
           <Route path="/order/:id" element={<OrderStatus />} />
           <Route path="/deposit/:id" element={<DepositStatus />} />
           <Route path="/faq" element={<Faq />} />
+          <Route path="/cart" element={<Cart />} />
           <Route path="/admin" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/orders" element={<AdminOrders />} />

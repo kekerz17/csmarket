@@ -5,6 +5,7 @@ import { categoryLabel } from '../components/CategorySidebar';
 import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useCart } from '../context/CartContext';
 import { useT } from '../i18n';
 
 export default function ItemDetail() {
@@ -127,24 +128,29 @@ export default function ItemDetail() {
                 </>
               )}
             </div>
-            <BuyButton
-              item={item}
-              user={user}
-              authLoading={authLoading}
-              buying={buying}
-              onBuy={async () => {
-                setBuyError(null);
-                setBuying(true);
-                try {
-                  const { orderId } = await api.purchase(item.assetId);
-                  navigate(`/order/${orderId}`);
-                } catch (err: any) {
-                  setBuyError(err.message ?? t('buy.genericError'));
-                } finally {
-                  setBuying(false);
-                }
-              }}
-            />
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <BuyButton
+                  item={item}
+                  user={user}
+                  authLoading={authLoading}
+                  buying={buying}
+                  onBuy={async () => {
+                    setBuyError(null);
+                    setBuying(true);
+                    try {
+                      const { orderId } = await api.purchase(item.assetId);
+                      navigate(`/order/${orderId}`);
+                    } catch (err: any) {
+                      setBuyError(err.message ?? t('buy.genericError'));
+                    } finally {
+                      setBuying(false);
+                    }
+                  }}
+                />
+              </div>
+              <AddToCartButton item={item} />
+            </div>
             {buyError && <div className="text-sm text-red-400 mt-3">{buyError}</div>}
           </div>
         </div>
@@ -204,6 +210,39 @@ function BuyButton({
   return (
     <button onClick={onBuy} disabled={buying} className={buyClass}>
       {buying ? t('buy.buying') : t('buy.buyFor', { price: format(item.priceUsd) })}
+    </button>
+  );
+}
+
+function AddToCartButton({ item }: { item: Item }) {
+  const { addItem, isInCart } = useCart();
+  const t = useT();
+  const inCart = isInCart(item.assetId);
+
+  return (
+    <button
+      onClick={() => !inCart && addItem(item)}
+      disabled={inCart}
+      title={inCart ? t('cart.inCart') : t('cart.addToCart')}
+      className={`shrink-0 w-12 rounded-lg border flex items-center justify-center transition-colors ${
+        inCart
+          ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400'
+          : 'bg-neutral-800 border-transparent text-neutral-300 hover:bg-neutral-700'
+      }`}
+    >
+      {inCart ? (
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      ) : (
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M2.25 3h1.386c.51 0 .955.343 1.087.836l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 1.994-4.694 2.602-7.174.135-.552-.283-1.076-.85-1.076H5.25M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
+          />
+        </svg>
+      )}
     </button>
   );
 }

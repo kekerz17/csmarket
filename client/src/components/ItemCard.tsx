@@ -2,14 +2,17 @@ import { Link } from 'react-router-dom';
 import type { Item } from '../api';
 import { getDiscountPercent, parseStickers } from '../api';
 import { useCurrency } from '../context/CurrencyContext';
+import { useCart } from '../context/CartContext';
 import { useT } from '../i18n';
 
 export default function ItemCard({ item }: { item: Item }) {
   const { format } = useCurrency();
+  const { addItem, isInCart } = useCart();
   const t = useT();
   const rarity = item.rarityColor ? `#${item.rarityColor}` : '#3f3f46';
   const stickerCount = parseStickers(item).length;
   const discount = getDiscountPercent(item);
+  const inCart = isInCart(item.assetId);
 
   return (
     <Link
@@ -21,6 +24,29 @@ export default function ItemCard({ item }: { item: Item }) {
         className="absolute top-0 left-0 right-0 h-[3px]"
         style={{ background: `linear-gradient(90deg, transparent, ${rarity}, transparent)` }}
       />
+
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          if (!inCart) addItem(item);
+        }}
+        title={inCart ? t('cart.inCart') : t('cart.addToCart')}
+        className={`absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-full flex items-center justify-center border transition-colors ${
+          inCart
+            ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400'
+            : 'bg-neutral-900/80 border-white/10 text-neutral-400 hover:text-emerald-400 hover:border-emerald-500/40'
+        }`}
+      >
+        {inCart ? (
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        ) : (
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+        )}
+      </button>
 
       <div className="relative h-32 mb-3 flex items-center justify-center">
         <span
