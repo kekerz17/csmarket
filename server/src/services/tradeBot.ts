@@ -6,6 +6,7 @@ import SteamTotp from 'steam-totp';
 import GlobalOffensive from 'globaloffensive';
 import { env } from '../env.js';
 import { prisma } from '../db.js';
+import { notifyAdmin } from './telegram.js';
 
 interface BotStatus {
   online: boolean;
@@ -103,6 +104,9 @@ export function startBot() {
         prisma.user.update({ where: { id: order.userId }, data: { balanceUsd: { increment: order.priceUsd } } }),
       ]);
       console.warn(`[tradeBot] Заказ ${order.id} провалился: ${stateName}, деньги возвращены на баланс`);
+      notifyAdmin(`⚠️ Трейд по заказу #${order.id.slice(0, 8)} провален (${stateName}). Деньги возвращены покупателю.`).catch(
+        () => {},
+      );
     }
   });
 }
@@ -140,6 +144,9 @@ export async function sendItem(orderId: string) {
         prisma.item.update({ where: { id: order.itemId }, data: { status: 'AVAILABLE' } }),
         prisma.user.update({ where: { id: order.userId }, data: { balanceUsd: { increment: order.priceUsd } } }),
       ]);
+      notifyAdmin(`⚠️ Не удалось отправить трейд по заказу #${order.id.slice(0, 8)}: ${err.message}. Деньги возвращены.`).catch(
+        () => {},
+      );
       return;
     }
 

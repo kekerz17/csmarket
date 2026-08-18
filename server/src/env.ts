@@ -34,6 +34,14 @@ export const env = {
     },
   },
 
+  telegram: {
+    botToken: process.env.TELEGRAM_BOT_TOKEN,
+    chatId: process.env.TELEGRAM_CHAT_ID,
+    get configured() {
+      return !!(process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID);
+    },
+  },
+
   steam: {
     username: process.env.STEAM_BOT_USERNAME,
     password: process.env.STEAM_BOT_PASSWORD,
