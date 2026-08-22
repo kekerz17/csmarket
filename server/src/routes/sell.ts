@@ -40,7 +40,30 @@ router.get('/inventory', async (req, res) => {
     return;
   }
 
-  const inventory = await fetchFullInventory(user.steamId64);
+  let inventory;
+  try {
+    inventory = await fetchFullInventory(user.steamId64);
+  } catch (err: any) {
+    // Steam иногда лимитирует запросы с IP дата-центра Render (429) — этот
+    // роут дёргается вживую при каждом визите на /sell, а не по расписанию,
+    // как синхронизация витрины, поэтому даём одну повторную попытку, прежде
+    // чем честно сказать пользователю, что Steam сейчас недоступен. Без
+    // try/catch здесь запрос падал в необработанный reject и просто вис —
+    // клиент не получал вообще никакого ответа.
+    console.warn('[sell] Первая попытка получить инвентарь не удалась, повтор через 3с:', err.message ?? err);
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    try {
+      inventory = await fetchFullInventory(user.steamId64);
+    } catch (err2: any) {
+      console.error('[sell] Не удалось получить инвентарь Steam после повтора:', err2.message ?? err2);
+      res.status(502).json({
+        error: 'INVENTORY_UNAVAILABLE',
+        message: 'Steam сейчас недоступен (похоже на временный лимит запросов) — попробуйте через минуту.',
+      });
+      return;
+    }
+  }
+
   if (!inventory) {
     res.status(502).json({
       error: 'INVENTORY_UNAVAILABLE',
