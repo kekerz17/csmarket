@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api, Item, BotStatus, ExchangeRates, getDiscountPercent, parseStickers } from '../../api';
 
@@ -114,6 +114,24 @@ export default function AdminDashboard() {
     reload();
   }
 
+  const [priceSort, setPriceSort] = useState<'asc' | 'desc' | null>(null);
+
+  function togglePriceSort() {
+    setPriceSort((prev) => (prev === null ? 'asc' : prev === 'asc' ? 'desc' : null));
+  }
+
+  const sortedItems = useMemo(() => {
+    if (!priceSort) return items;
+    const copy = [...items];
+    copy.sort((a, b) => {
+      // Предметы без цены всегда в конце, независимо от направления сортировки.
+      if (a.priceUsd == null) return 1;
+      if (b.priceUsd == null) return -1;
+      return priceSort === 'asc' ? a.priceUsd - b.priceUsd : b.priceUsd - a.priceUsd;
+    });
+    return copy;
+  }, [items, priceSort]);
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -149,13 +167,19 @@ export default function AdminDashboard() {
             <th>Статус</th>
             <th>Float</th>
             <th>Наклейки</th>
-            <th>Цена, $</th>
+            <th>
+              <button onClick={togglePriceSort} className="flex items-center gap-1 hover:text-neutral-200 transition-colors">
+                Цена, $
+                {priceSort === 'asc' && <span>▲</span>}
+                {priceSort === 'desc' && <span>▼</span>}
+              </button>
+            </th>
             <th>Рыночная цена</th>
             <th>В продаже</th>
           </tr>
         </thead>
         <tbody>
-          {items.map((item) => (
+          {sortedItems.map((item) => (
             <tr key={item.id} className="border-t border-neutral-800">
               <td className="py-2 flex items-center gap-2">
                 <img src={item.iconUrl} className="w-8 h-8 object-contain" alt="" />
