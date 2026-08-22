@@ -146,9 +146,36 @@ const ru: Dict = {
     'Автоматического вывода баланса обратно в криптовалюту пока нет. Если это нужно — напишите в поддержку, вопрос решается вручную.',
   'faq.q9': 'Могу ли я продать свои скины через этот сайт?',
   'faq.a9':
-    'Нет — это витрина личного инвентаря продавца, предметы для продажи выбирает только он сам. Функции продажи скинов других пользователей на сайте нет.',
+    'Да, в разделе «Продать». Вы увидите предложенную сумму по каждому предмету (это процент от рыночной цены — комиссия за скупку) ещё до входа, а после подтверждения отправляете предмет по указанной trade-ссылке. Деньги зачисляются на баланс не сразу, а после того как владелец сайта вручную подтвердит получение предмета — это связано с тем, что Steam может задерживать входящие трейды (trade hold) на несколько дней, и раньше этого срока нельзя быть уверенным, что предмет действительно получен.',
   'faq.q10': 'Куда обращаться, если возникла проблема?',
   'faq.a10': 'Напишите на lev2009177@gmail.com — этот адрес также указан в подвале сайта.',
+
+  'sell.title': 'Продать скины',
+  'sell.intro':
+    'Мы выкупаем ваши скины по {percent}% от рыночной цены. Деньги зачисляются на баланс сайта после того, как мы получим и проверим предмет — обычно это занимает несколько дней из-за trade hold Steam.',
+  'sell.minPrice': 'Принимаем предметы дороже {price}.',
+  'sell.loginToSell': 'Войдите через Steam, чтобы увидеть свой инвентарь',
+  'sell.loadingInventory': 'Загружаем ваш инвентарь Steam...',
+  'sell.inventoryError': 'Не удалось получить инвентарь Steam. Проверьте, что он публичный, и попробуйте ещё раз.',
+  'sell.retry': 'Попробовать снова',
+  'sell.emptyInventory': 'В вашем инвентаре нет предметов, доступных для продажи.',
+  'sell.marketPrice': 'Рынок',
+  'sell.notSellable': 'Слишком низкая цена',
+  'sell.sellFor': 'Продать за {price}',
+  'sell.confirmTitle': 'Отправьте предмет по этой ссылке',
+  'sell.confirmName': 'Предмет',
+  'sell.confirmPayout': 'Вы получите',
+  'sell.confirmWarning':
+    'Отправьте {name} трейд-оффером по ссылке выше. Как только отправите — нажмите кнопку ниже. Деньги зачислятся после того, как мы проверим получение предмета (может занять несколько дней).',
+  'sell.markSent': 'Я отправил(а) трейд',
+  'sell.markingSent': 'Отмечаем...',
+  'sell.myOffers': 'Мои заявки на продажу',
+  'sell.status.PENDING_TRANSFER': 'Ждём отправку',
+  'sell.status.AWAITING_CONFIRMATION': 'Ждём подтверждения получения',
+  'sell.status.COMPLETED': 'Оплачено',
+  'sell.status.REJECTED': 'Отклонено',
+  'sell.error.generic': 'Не удалось выполнить действие',
+  'header.sell': 'Продать',
 };
 
 const en: Dict = {
@@ -294,9 +321,36 @@ const en: Dict = {
     "There's no automatic withdrawal of balance back to crypto yet. If you need this, contact support — it's handled manually.",
   'faq.q9': 'Can I sell my own skins through this site?',
   'faq.a9':
-    "No — this is a storefront for the seller's personal inventory; only they choose which items are for sale. There's no feature for other users to sell skins on the site.",
+    'Yes, on the "Sell" page. You\'ll see the offered payout for each item (a percentage of market price — a buyback fee) before you even log in, and after confirming you send the item to the given trade URL. The money isn\'t credited to your balance right away — only after the site owner manually confirms the item arrived, since Steam can hold incoming trades for several days, and there\'s no way to be sure before that.',
   'faq.q10': 'Where do I go if I run into a problem?',
   'faq.a10': 'Email lev2009177@gmail.com — this address is also listed in the site footer.',
+
+  'sell.title': 'Sell your skins',
+  'sell.intro':
+    "We buy your skins for {percent}% of market price. The money is credited to your site balance once we receive and verify the item — usually within a few days because of Steam's trade hold.",
+  'sell.minPrice': 'We accept items above {price}.',
+  'sell.loginToSell': 'Log in with Steam to see your inventory',
+  'sell.loadingInventory': 'Loading your Steam inventory...',
+  'sell.inventoryError': "Couldn't load your Steam inventory. Make sure it's public and try again.",
+  'sell.retry': 'Try again',
+  'sell.emptyInventory': 'No items in your inventory are eligible for sale.',
+  'sell.marketPrice': 'Market',
+  'sell.notSellable': 'Price too low',
+  'sell.sellFor': 'Sell for {price}',
+  'sell.confirmTitle': 'Send the item to this link',
+  'sell.confirmName': 'Item',
+  'sell.confirmPayout': "You'll receive",
+  'sell.confirmWarning':
+    "Send {name} as a trade offer to the link above. Once you've sent it, click the button below. The money will be credited after we confirm the item arrived (may take a few days).",
+  'sell.markSent': "I've sent the trade",
+  'sell.markingSent': 'Marking...',
+  'sell.myOffers': 'My sell requests',
+  'sell.status.PENDING_TRANSFER': 'Waiting for you to send it',
+  'sell.status.AWAITING_CONFIRMATION': 'Waiting for us to confirm receipt',
+  'sell.status.COMPLETED': 'Paid',
+  'sell.status.REJECTED': 'Rejected',
+  'sell.error.generic': "Couldn't complete that action",
+  'header.sell': 'Sell',
 };
 
 const dictionaries: Record<Language, Dict> = { ru, en };

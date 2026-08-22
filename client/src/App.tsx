@@ -7,9 +7,11 @@ import OrderStatus from './pages/OrderStatus';
 import DepositStatus from './pages/DepositStatus';
 import Faq from './pages/Faq';
 import Cart from './pages/Cart';
+import Sell from './pages/Sell';
 import AdminLogin from './pages/admin/Login';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminOrders from './pages/admin/Orders';
+import AdminSellOrders from './pages/admin/SellOrders';
 import { useAuth } from './context/AuthContext';
 import { useCurrency, type Currency } from './context/CurrencyContext';
 import { useLanguage, type Language } from './context/LanguageContext';
@@ -238,6 +240,9 @@ export default function App() {
             </span>
           </Link>
           <div className="flex items-center gap-4">
+            <Link to="/sell" className="hidden sm:inline text-sm text-neutral-400 hover:text-neutral-200 transition-colors">
+              {t('header.sell')}
+            </Link>
             <LanguageSelector />
             <CurrencySelector />
             <CartLink />
@@ -258,9 +263,11 @@ export default function App() {
           <Route path="/deposit/:id" element={<DepositStatus />} />
           <Route path="/faq" element={<Faq />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/sell" element={<Sell />} />
           <Route path="/admin" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/orders" element={<AdminOrders />} />
+          <Route path="/admin/sell-orders" element={<AdminSellOrders />} />
         </Routes>
       </main>
 

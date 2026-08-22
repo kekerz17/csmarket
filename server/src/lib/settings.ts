@@ -29,3 +29,52 @@ export async function setExchangeRates(rates: { RUB: number; EUR: number }): Pro
     }),
   ]);
 }
+
+export interface SellSettings {
+  // Популярные маркетплейсы платят за моментальный выкуп 60-95% от рыночной
+  // цены (DMarket ~60-80%, топовые вроде Aim.market — до 95%); берём 70% по
+  // умолчанию — с запасом в пользу владельца сайта, настраивается в админке.
+  buybackPercent: number;
+  // Предметы дешевле этой суммы не принимаем — ручная сделка (написать
+  // трейд, дождаться, проверить, зачислить) не окупает себя на копейках.
+  minPriceUsd: number;
+  // Trade URL аккаунта, на который продавцы отправляют предметы. Может
+  // отличаться от STEAM_OWNER_ID64 (например, если удобнее принимать всё
+  // на один конкретный аккаунт из нескольких, см. STEAM_OWNER_ID64_EXTRA).
+  receivingTradeUrl: string;
+}
+
+const DEFAULT_SELL_SETTINGS: SellSettings = { buybackPercent: 70, minPriceUsd: 0.5, receivingTradeUrl: '' };
+
+export async function getSellSettings(): Promise<SellSettings> {
+  const rows = await prisma.setting.findMany({
+    where: { key: { in: ['sell_buyback_percent', 'sell_min_price_usd', 'sell_receiving_trade_url'] } },
+  });
+  const byKey = new Map(rows.map((r) => [r.key, r.value]));
+
+  return {
+    buybackPercent: Number(byKey.get('sell_buyback_percent') ?? DEFAULT_SELL_SETTINGS.buybackPercent),
+    minPriceUsd: Number(byKey.get('sell_min_price_usd') ?? DEFAULT_SELL_SETTINGS.minPriceUsd),
+    receivingTradeUrl: byKey.get('sell_receiving_trade_url') ?? DEFAULT_SELL_SETTINGS.receivingTradeUrl,
+  };
+}
+
+export async function setSellSettings(settings: SellSettings): Promise<void> {
+  await prisma.$transaction([
+    prisma.setting.upsert({
+      where: { key: 'sell_buyback_percent' },
+      create: { key: 'sell_buyback_percent', value: String(settings.buybackPercent) },
+      update: { value: String(settings.buybackPercent) },
+    }),
+    prisma.setting.upsert({
+      where: { key: 'sell_min_price_usd' },
+      create: { key: 'sell_min_price_usd', value: String(settings.minPriceUsd) },
+      update: { value: String(settings.minPriceUsd) },
+    }),
+    prisma.setting.upsert({
+      where: { key: 'sell_receiving_trade_url' },
+      create: { key: 'sell_receiving_trade_url', value: settings.receivingTradeUrl },
+      update: { value: settings.receivingTradeUrl },
+    }),
+  ]);
+}

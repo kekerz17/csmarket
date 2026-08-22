@@ -1,3 +1,15 @@
+import { getSkinportPrice } from './skinportPricing.js';
+
+// Skinport — основной источник: отдаёт цены на весь каталог одним запросом и
+// не подвержен блокировкам Steam по IP дата-центра. Steam Market — запасной
+// вариант для редких предметов, которых нет на Skinport. Используется и для
+// подсказки цены в админке, и для расчёта суммы выкупа скинов у пользователей.
+export async function getBestMarketPrice(marketHashName: string): Promise<number | null> {
+  const skinportPrice = await getSkinportPrice(marketHashName);
+  if (skinportPrice != null) return skinportPrice;
+  return getMarketPrice(marketHashName);
+}
+
 // Steam Market priceoverview жёстко ограничивает частоту запросов —
 // держим минимум ~1.2с между вызовами, чтобы не словить временный бан по IP.
 let lastCallAt = 0;

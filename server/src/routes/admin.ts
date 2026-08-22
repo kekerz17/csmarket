@@ -6,10 +6,10 @@ import { prisma } from '../db.js';
 import { env } from '../env.js';
 import { adminAuth } from '../middleware/adminAuth.js';
 import { authCookieOptions } from '../lib/cookies.js';
-import { getMarketPrice } from '../services/pricing.js';
-import { getSkinportPrice, warmSkinportCache } from '../services/skinportPricing.js';
+import { getBestMarketPrice } from '../services/pricing.js';
+import { warmSkinportCache, getSkinportPrice } from '../services/skinportPricing.js';
 import { getBotStatus, getFloat } from '../services/tradeBot.js';
-import { getExchangeRates, setExchangeRates } from '../lib/settings.js';
+import { getExchangeRates, setExchangeRates, getSellSettings, setSellSettings } from '../lib/settings.js';
 
 const router = Router();
 
@@ -68,13 +68,7 @@ router.post('/items/:id/suggest-price', async (req, res) => {
     return;
   }
 
-  // Skinport — основной источник: отдаёт цены на весь каталог одним запросом
-  // и не подвержен блокировкам Steam по IP дата-центра. Steam Market —
-  // запасной вариант для редких предметов, которых нет на Skinport.
-  let price = await getSkinportPrice(item.marketHashName);
-  if (price == null) {
-    price = await getMarketPrice(item.marketHashName);
-  }
+  const price = await getBestMarketPrice(item.marketHashName);
   if (price == null) {
     res.status(502).json({ error: 'Не удалось получить цену ни с одного источника (Skinport, Steam Market)' });
     return;
@@ -198,6 +192,72 @@ router.patch('/settings/exchange-rates', async (req, res) => {
   }
   await setExchangeRates(parsed.data);
   res.json(parsed.data);
+});
+
+router.get('/settings/sell', async (_req, res) => {
+  res.json(await getSellSettings());
+});
+
+router.patch('/settings/sell', async (req, res) => {
+  const parsed = z
+    .object({
+      buybackPercent: z.number().min(1).max(100),
+      minPriceUsd: z.number().min(0),
+      receivingTradeUrl: z.string(),
+    })
+    .safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.flatten() });
+    return;
+  }
+  await setSellSettings(parsed.data);
+  res.json(parsed.data);
+});
+
+router.get('/sell-orders', async (_req, res) => {
+  const offers = await prisma.sellOrder.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: { user: true },
+  });
+  res.json(offers);
+});
+
+const ACTIVE_SELL_STATUSES = ['PENDING_TRANSFER', 'AWAITING_CONFIRMATION'];
+
+router.post('/sell-orders/:id/confirm', async (req, res) => {
+  const parsed = z.object({ action: z.enum(['received', 'rejected']) }).safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.flatten() });
+    return;
+  }
+
+  const offer = await prisma.sellOrder.findUnique({ where: { id: req.params.id } });
+  if (!offer) {
+    res.status(404).json({ error: 'Не найдено' });
+    return;
+  }
+  if (!ACTIVE_SELL_STATUSES.includes(offer.status)) {
+    res.status(409).json({ error: `Заявка уже в статусе ${offer.status} — действие недоступно` });
+    return;
+  }
+
+  if (parsed.data.action === 'received') {
+    // Деньги зачисляются только сейчас, после того как владелец сайта сам
+    // убедился, что предмет реально дошёл (пережил trade hold и т.п.) —
+    // намеренно не раньше, см. комментарий у модели SellOrder.
+    const [updated] = await prisma.$transaction([
+      prisma.sellOrder.update({ where: { id: offer.id }, data: { status: 'COMPLETED' } }),
+      prisma.user.update({ where: { id: offer.userId }, data: { balanceUsd: { increment: offer.payoutUsd } } }),
+    ]);
+    res.json(updated);
+    return;
+  }
+
+  const updated = await prisma.sellOrder.update({
+    where: { id: offer.id },
+    data: { status: 'REJECTED', adminNote: 'Отклонено владельцем' },
+  });
+  res.json(updated);
 });
 
 export default router;

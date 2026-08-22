@@ -118,6 +118,41 @@ export interface Order {
   createdAt: string;
 }
 
+export interface SellableItem {
+  assetId: string;
+  marketHashName: string;
+  name: string;
+  iconUrl: string;
+  exterior: string | null;
+  category: string | null;
+  marketPriceUsd: number | null;
+  payoutUsd: number | null;
+  sellable: boolean;
+}
+
+export interface SellOrder {
+  id: string;
+  userId: string;
+  user?: User;
+  assetId: string;
+  marketHashName: string;
+  name: string;
+  iconUrl: string;
+  exterior: string | null;
+  marketPriceUsd: number;
+  payoutUsd: number;
+  status: string;
+  adminNote: string | null;
+  createdAt: string;
+  receivingTradeUrl?: string;
+}
+
+export interface SellSettings {
+  buybackPercent: number;
+  minPriceUsd: number;
+  receivingTradeUrl: string;
+}
+
 export interface BotStatus {
   online: boolean;
   dryRun: boolean;
@@ -187,6 +222,14 @@ export const api = {
   purchase: (assetId: string) =>
     request<{ orderId: string }>('/purchases', { method: 'POST', body: JSON.stringify({ assetId }) }),
 
+  // --- Продажа своих скинов сайту -------------------------------------------
+  getSellSettings: () => request<SellSettings>('/settings/sell'),
+  getSellableInventory: () => request<SellableItem[]>('/sell/inventory'),
+  createSellOffer: (item: Pick<SellableItem, 'assetId' | 'marketHashName' | 'name' | 'iconUrl' | 'exterior'>) =>
+    request<SellOrder>('/sell/offers', { method: 'POST', body: JSON.stringify(item) }),
+  markSellOfferSent: (id: string) => request<SellOrder>(`/sell/offers/${id}/mark-sent`, { method: 'POST' }),
+  mySellOffers: () => request<SellOrder[]>('/sell/offers'),
+
   // --- Админка ---------------------------------------------------------------
   adminLogin: (password: string) =>
     request<{ ok: true }>('/admin/login', { method: 'POST', body: JSON.stringify({ password }) }),
@@ -205,4 +248,10 @@ export const api = {
   adminGetExchangeRates: () => request<ExchangeRates>('/admin/settings/exchange-rates'),
   adminSetExchangeRates: (rates: ExchangeRates) =>
     request<ExchangeRates>('/admin/settings/exchange-rates', { method: 'PATCH', body: JSON.stringify(rates) }),
+  adminGetSellSettings: () => request<SellSettings>('/admin/settings/sell'),
+  adminSetSellSettings: (settings: SellSettings) =>
+    request<SellSettings>('/admin/settings/sell', { method: 'PATCH', body: JSON.stringify(settings) }),
+  adminListSellOrders: () => request<SellOrder[]>('/admin/sell-orders'),
+  adminConfirmSellOrder: (id: string, action: 'received' | 'rejected') =>
+    request<SellOrder>(`/admin/sell-orders/${id}/confirm`, { method: 'POST', body: JSON.stringify({ action }) }),
 };

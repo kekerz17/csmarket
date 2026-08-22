@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { api, Item, BotStatus, ExchangeRates, getDiscountPercent, parseStickers } from '../../api';
+import { api, Item, BotStatus, ExchangeRates, SellSettings, getDiscountPercent, parseStickers } from '../../api';
 
 function ExchangeRateSettings() {
   const [rates, setRates] = useState<ExchangeRates | null>(null);
@@ -46,6 +46,74 @@ function ExchangeRateSettings() {
             setRates({ ...rates, EUR: Number(e.target.value) });
           }}
           className="w-20 rounded bg-neutral-950 border border-neutral-800 px-2 py-1"
+        />
+      </label>
+      <button onClick={save} className="text-xs px-3 py-1.5 rounded bg-neutral-800 hover:bg-neutral-700">
+        Сохранить
+      </button>
+      {saved && <span className="text-emerald-400 text-xs">Сохранено</span>}
+    </div>
+  );
+}
+
+function SellSettingsForm() {
+  const [settings, setSettings] = useState<SellSettings | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    api.adminGetSellSettings().then(setSettings).catch(console.error);
+  }, []);
+
+  async function save() {
+    if (!settings) return;
+    setSaved(false);
+    await api.adminSetSellSettings(settings);
+    setSaved(true);
+  }
+
+  if (!settings) return null;
+
+  return (
+    <div className="rounded-xl border border-white/5 bg-neutral-900/60 p-4 mb-6 flex flex-wrap items-center gap-4 text-sm">
+      <span className="text-neutral-400">Выкуп скинов:</span>
+      <label className="flex items-center gap-1.5">
+        %{' '}
+        <input
+          type="number"
+          min={1}
+          max={100}
+          value={settings.buybackPercent}
+          onChange={(e) => {
+            setSaved(false);
+            setSettings({ ...settings, buybackPercent: Number(e.target.value) });
+          }}
+          className="w-16 rounded bg-neutral-950 border border-neutral-800 px-2 py-1"
+        />
+      </label>
+      <label className="flex items-center gap-1.5">
+        мин. цена $
+        <input
+          type="number"
+          step="0.01"
+          min={0}
+          value={settings.minPriceUsd}
+          onChange={(e) => {
+            setSaved(false);
+            setSettings({ ...settings, minPriceUsd: Number(e.target.value) });
+          }}
+          className="w-20 rounded bg-neutral-950 border border-neutral-800 px-2 py-1"
+        />
+      </label>
+      <label className="flex items-center gap-1.5 flex-1 min-w-[220px]">
+        trade URL для приёма
+        <input
+          value={settings.receivingTradeUrl}
+          onChange={(e) => {
+            setSaved(false);
+            setSettings({ ...settings, receivingTradeUrl: e.target.value });
+          }}
+          placeholder="https://steamcommunity.com/tradeoffer/new/?partner=...&token=..."
+          className="flex-1 min-w-0 rounded bg-neutral-950 border border-neutral-800 px-2 py-1"
         />
       </label>
       <button onClick={save} className="text-xs px-3 py-1.5 rounded bg-neutral-800 hover:bg-neutral-700">
@@ -154,10 +222,14 @@ export default function AdminDashboard() {
           <Link to="/admin/orders" className="text-sm text-neutral-400 hover:text-neutral-200">
             Заказы →
           </Link>
+          <Link to="/admin/sell-orders" className="text-sm text-neutral-400 hover:text-neutral-200">
+            Заявки на выкуп →
+          </Link>
         </div>
       </div>
 
       <ExchangeRateSettings />
+      <SellSettingsForm />
 
       <table className="w-full text-sm">
         <thead className="text-neutral-400 text-left">

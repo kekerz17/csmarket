@@ -61,6 +61,7 @@ model User {
   updatedAt   DateTime  @updatedAt
   orders      Order[]
   deposits    Deposit[]
+  sellOrders  SellOrder[]
 }
 
 // status: PENDING | COMPLETED | FAILED | EXPIRED
@@ -103,4 +104,28 @@ model Order {
   failureReason        String?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
+}
+
+// Выкуп скинов у пользователей (обратная сторона витрины). Деньги НЕ
+// зачисляются мгновенно: из-за trade hold Steam нельзя быть уверенным, что
+// предмет реально дошёл, пока владелец сайта не проверит это сам — поэтому
+// баланс начисляется только через ручное подтверждение в админке.
+// status: PENDING_TRANSFER (ждём, что продавец отправит трейд) →
+// AWAITING_CONFIRMATION (продавец нажал "отправил") →
+// COMPLETED (владелец подтвердил получение, деньги зачислены) | REJECTED
+model SellOrder {
+  id             String   @id @default(cuid())
+  user           User     @relation(fields: [userId], references: [id])
+  userId         String
+  assetId        String
+  marketHashName String
+  name           String
+  iconUrl        String
+  exterior       String?
+  marketPriceUsd Float
+  payoutUsd      Float
+  status         String   @default("PENDING_TRANSFER")
+  adminNote      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
