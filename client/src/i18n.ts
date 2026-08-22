@@ -156,7 +156,8 @@ const ru: Dict = {
   'sell.minPrice': 'Принимаем предметы дороже {price}.',
   'sell.loginToSell': 'Войдите через Steam, чтобы увидеть свой инвентарь',
   'sell.loadingInventory': 'Загружаем ваш инвентарь Steam...',
-  'sell.inventoryError': 'Не удалось получить инвентарь Steam. Проверьте, что он публичный, и попробуйте ещё раз.',
+  'sell.inventoryError':
+    'Не удалось получить инвентарь Steam. Либо он не публичный, либо Steam сейчас временно ограничивает запросы — попробуйте через минуту.',
   'sell.retry': 'Попробовать снова',
   'sell.emptyInventory': 'В вашем инвентаре нет предметов, доступных для продажи.',
   'sell.marketPrice': 'Рынок',
@@ -331,7 +332,8 @@ const en: Dict = {
   'sell.minPrice': 'We accept items above {price}.',
   'sell.loginToSell': 'Log in with Steam to see your inventory',
   'sell.loadingInventory': 'Loading your Steam inventory...',
-  'sell.inventoryError': "Couldn't load your Steam inventory. Make sure it's public and try again.",
+  'sell.inventoryError':
+    "Couldn't load your Steam inventory. Either it isn't public, or Steam is temporarily rate-limiting requests — try again in a minute.",
   'sell.retry': 'Try again',
   'sell.emptyInventory': 'No items in your inventory are eligible for sale.',
   'sell.marketPrice': 'Market',

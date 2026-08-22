@@ -40,34 +40,33 @@ router.get('/inventory', async (req, res) => {
     return;
   }
 
-  let inventory;
-  try {
-    inventory = await fetchFullInventory(user.steamId64);
-  } catch (err: any) {
-    // Steam иногда лимитирует запросы с IP дата-центра Render (429) — этот
-    // роут дёргается вживую при каждом визите на /sell, а не по расписанию,
-    // как синхронизация витрины, поэтому даём одну повторную попытку, прежде
-    // чем честно сказать пользователю, что Steam сейчас недоступен. Без
-    // try/catch здесь запрос падал в необработанный reject и просто вис —
-    // клиент не получал вообще никакого ответа.
-    console.warn('[sell] Первая попытка получить инвентарь не удалась, повтор через 3с:', err.message ?? err);
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+  // Steam иногда лимитирует запросы с IP дата-центра Render — и это может
+  // выглядеть и как HTTP 429 (fetchFullInventory бросает исключение), и как
+  // обычный ответ 200 с success:false (fetchFullInventory просто вернёт null)
+  // — тот же самый лимит, просто Steam оформляет отказ по-разному. В обоих
+  // случаях даём одну повторную попытку, прежде чем показать ошибку —
+  // сообщение специально не утверждает наверняка, что инвентарь приватный,
+  // раз мы не можем это различить.
+  async function tryFetch() {
     try {
-      inventory = await fetchFullInventory(user.steamId64);
-    } catch (err2: any) {
-      console.error('[sell] Не удалось получить инвентарь Steam после повтора:', err2.message ?? err2);
-      res.status(502).json({
-        error: 'INVENTORY_UNAVAILABLE',
-        message: 'Steam сейчас недоступен (похоже на временный лимит запросов) — попробуйте через минуту.',
-      });
-      return;
+      return await fetchFullInventory(user!.steamId64);
+    } catch (err: any) {
+      console.warn('[sell] Не удалось получить инвентарь Steam:', err.message ?? err);
+      return null;
     }
+  }
+
+  let inventory = await tryFetch();
+  if (!inventory) {
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    inventory = await tryFetch();
   }
 
   if (!inventory) {
     res.status(502).json({
       error: 'INVENTORY_UNAVAILABLE',
-      message: 'Не удалось получить ваш инвентарь Steam. Убедитесь, что инвентарь публичный, и попробуйте ещё раз.',
+      message:
+        'Не удалось получить ваш инвентарь Steam. Либо инвентарь не публичный, либо Steam сейчас временно ограничивает запросы — попробуйте ещё раз через минуту.',
     });
     return;
   }
