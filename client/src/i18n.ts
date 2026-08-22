@@ -177,6 +177,7 @@ const ru: Dict = {
   'sell.status.REJECTED': 'Отклонено',
   'sell.error.generic': 'Не удалось выполнить действие',
   'header.sell': 'Продать',
+  'header.buy': 'Купить',
 };
 
 const en: Dict = {
@@ -353,6 +354,7 @@ const en: Dict = {
   'sell.status.REJECTED': 'Rejected',
   'sell.error.generic': "Couldn't complete that action",
   'header.sell': 'Sell',
+  'header.buy': 'Buy',
 };
 
 const dictionaries: Record<Language, Dict> = { ru, en };

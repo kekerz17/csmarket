@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import Home from './pages/Home';
 import ItemDetail from './pages/ItemDetail';
 import Profile from './pages/Profile';
@@ -139,6 +139,27 @@ function CartLink() {
   );
 }
 
+function BuySellToggle() {
+  const location = useLocation();
+  const t = useT();
+  const sellActive = location.pathname.startsWith('/sell');
+
+  const baseClass = 'px-4 py-1.5 text-sm font-semibold transition-colors';
+  const activeClass = 'bg-gradient-to-r from-emerald-500 to-teal-500 text-neutral-950';
+  const inactiveClass = 'text-neutral-400 hover:text-neutral-200';
+
+  return (
+    <div className="hidden sm:flex items-center rounded-lg border border-white/10 overflow-hidden">
+      <Link to="/" className={`${baseClass} ${sellActive ? inactiveClass : activeClass}`}>
+        {t('header.buy')}
+      </Link>
+      <Link to="/sell" className={`${baseClass} ${sellActive ? activeClass : inactiveClass}`}>
+        {t('header.sell')}
+      </Link>
+    </div>
+  );
+}
+
 function HeaderAuth() {
   const { user, loading, refresh } = useAuth();
   const { format } = useCurrency();
@@ -240,9 +261,7 @@ export default function App() {
             </span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link to="/sell" className="hidden sm:inline text-sm text-neutral-400 hover:text-neutral-200 transition-colors">
-              {t('header.sell')}
-            </Link>
+            <BuySellToggle />
             <LanguageSelector />
             <CurrencySelector />
             <CartLink />
