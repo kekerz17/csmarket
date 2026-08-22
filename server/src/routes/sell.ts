@@ -4,6 +4,7 @@ import { prisma } from '../db.js';
 import { userAuth } from '../middleware/userAuth.js';
 import { getSellSettings } from '../lib/settings.js';
 import { getBestMarketPrice } from '../services/pricing.js';
+import { getSkinportPrice } from '../services/skinportPricing.js';
 import { fetchFullInventory, getExterior, getCategory } from '../services/steamInventory.js';
 import { notifyAdmin } from '../services/telegram.js';
 
@@ -51,12 +52,17 @@ router.get('/inventory', async (req, res) => {
   const settings = await getSellSettings();
   const { assets, descByKey } = inventory;
 
+  // Только Skinport (кэш всего каталога, быстрый Map.get) — без обращения к
+  // Steam Market за каждый предмет: там жёсткий троттлинг ~1.2с НА ЗАПРОС,
+  // и при инвентаре из сотен предметов страница у пользователя зависала бы
+  // на минуты. Предметы, которых нет на Skinport (совсем редкие), просто
+  // помечаются как недоступные для продажи — не гонимся тут за каждым.
   const items: SellableItem[] = [];
   for (const asset of assets) {
     const desc = descByKey.get(`${asset.classid}_${asset.instanceid}`);
     if (!desc || !desc.tradable || !desc.marketable) continue;
 
-    const marketPriceUsd = await getBestMarketPrice(desc.market_hash_name);
+    const marketPriceUsd = await getSkinportPrice(desc.market_hash_name);
     const payoutUsd = marketPriceUsd != null ? Math.round(marketPriceUsd * (settings.buybackPercent / 100) * 100) / 100 : null;
     const sellable = payoutUsd != null && marketPriceUsd! >= settings.minPriceUsd;
 
