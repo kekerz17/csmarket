@@ -178,6 +178,31 @@ const ru: Dict = {
   'sell.error.generic': 'Не удалось выполнить действие',
   'header.sell': 'Продать',
   'header.buy': 'Купить',
+  'footer.privacy': 'Политика конфиденциальности',
+
+  'privacy.pageTitle': 'Политика конфиденциальности',
+  'privacy.intro':
+    'Girgich Store — личный магазин скинов CS2. Ниже честно и простыми словами описано, какие данные мы собираем и что с ними делаем. Мы не юридическая фирма, но стараемся быть максимально прозрачными в том, что реально происходит на сайте.',
+  'privacy.title1': 'Какие данные мы собираем',
+  'privacy.body1':
+    'При входе через Steam мы получаем ваш SteamID, отображаемое имя и аватар — это всё, что даёт Steam при авторизации. Дополнительно вы сами указываете в профиле свою Steam Trade URL. Мы также храним историю ваших покупок и заявок на продажу (какой предмет, по какой цене, статус) и текущий баланс на сайте.',
+  'privacy.title2': 'Зачем нам эти данные',
+  'privacy.body2':
+    'Чтобы узнавать вас при входе, списывать и начислять баланс, отправлять купленные скины трейд-оффером именно вам, а выкупленные у вас скины принимать на нужный аккаунт. Больше ни для чего эти данные не используются — ни для рекламы, ни для аналитики поведения.',
+  'privacy.title3': 'Платежи',
+  'privacy.body3':
+    'Приём и вывод криптовалюты технически обрабатывает сторонний платёжный сервис NOWPayments — при пополнении баланса вы вводите данные платежа на его стороне, а не на нашей. Мы получаем от него только подтверждение, что платёж прошёл, и сумму — реквизиты вашего кошелька или карты нам не передаются и не хранятся у нас.',
+  'privacy.title4': 'Кому мы передаём данные',
+  'privacy.body4':
+    'Steam — для входа на сайт. NOWPayments — для обработки платежей. Внутренние уведомления о новых заказах (имя, ссылка на ваш Steam-профиль, сумма) приходят владельцу сайта в Telegram — это уведомление только для владельца, не публикуется и никому больше не передаётся. Мы не продаём и не передаём данные пользователей никаким другим третьим лицам, не показываем рекламу и не используем аналитические трекеры вроде Google Analytics.',
+  'privacy.title5': 'Cookie и локальное хранилище браузера',
+  'privacy.body5':
+    'Мы используем cookie и localStorage только для того, чтобы помнить, что вы вошли в аккаунт (без этого пришлось бы логиниться заново на каждой странице), а также чтобы запомнить выбранный язык и валюту отображения цен. Отдельно на сайте показан примерный счётчик посетителей онлайн — он использует случайный анонимный идентификатор в localStorage, никак не привязанный к вашему аккаунту или личности.',
+  'privacy.title6': 'Хранение и удаление данных',
+  'privacy.body6':
+    'Данные аккаунта хранятся, пока существует ваш профиль на сайте. Если хотите удалить свои данные или узнать, что именно о вас хранится — напишите нам, обработаем запрос вручную. Обратите внимание: сами предметы и трейд-офферы в Steam находятся вне нашего контроля и регулируются правилами самого Steam.',
+  'privacy.title7': 'Связь с нами',
+  'privacy.body7': 'По любым вопросам о персональных данных пишите на lev2009177@gmail.com — этот же адрес указан в подвале сайта.',
 };
 
 const en: Dict = {
@@ -355,6 +380,31 @@ const en: Dict = {
   'sell.error.generic': "Couldn't complete that action",
   'header.sell': 'Sell',
   'header.buy': 'Buy',
+  'footer.privacy': 'Privacy Policy',
+
+  'privacy.pageTitle': 'Privacy Policy',
+  'privacy.intro':
+    "Girgich Store is a personal CS2 skin store. Below is a plain, honest description of what data we collect and what we do with it. We're not a law firm, but we try to be as transparent as possible about what actually happens on this site.",
+  'privacy.title1': 'What data we collect',
+  'privacy.body1':
+    "When you log in with Steam, we receive your SteamID, display name, and avatar — that's everything Steam provides on login. You also add your own Steam Trade URL in your profile. We keep a history of your purchases and sell requests (item, price, status) and your current site balance.",
+  'privacy.title2': 'Why we use this data',
+  'privacy.body2':
+    "To recognize you when you log in, debit and credit your balance, send purchased skins to you specifically as a trade offer, and receive skins you sell into the right account. We don't use this data for anything else — no advertising, no behavioral analytics.",
+  'privacy.title3': 'Payments',
+  'privacy.body3':
+    "Crypto deposits and payments are technically handled by a third-party payment service, NOWPayments — when you top up your balance, you enter payment details on their side, not ours. We only receive confirmation that a payment went through, along with the amount; your wallet or card details are never sent to or stored by us.",
+  'privacy.title4': 'Who we share data with',
+  'privacy.body4':
+    "Steam — to log you in. NOWPayments — to process payments. Internal notifications about new orders (your name, a link to your Steam profile, the amount) are sent to the site owner via Telegram — this is a notification for the owner only, never published or shared further. We don't sell or share user data with any other third party, don't show ads, and don't use analytics trackers like Google Analytics.",
+  'privacy.title5': 'Cookies and browser local storage',
+  'privacy.body5':
+    "We use cookies and localStorage only to remember that you're logged in (otherwise you'd have to log in again on every page) and to remember your chosen language and display currency. The site also shows an approximate online-visitor count, which uses a random anonymous identifier in localStorage that isn't linked to your account or identity in any way.",
+  'privacy.title6': 'Data retention and deletion',
+  'privacy.body6':
+    "Account data is kept for as long as your profile exists on the site. If you'd like your data deleted, or want to know exactly what we hold about you, email us and we'll handle the request manually. Note that the items and trade offers themselves live in Steam, outside our control, and are governed by Steam's own rules.",
+  'privacy.title7': 'Contact us',
+  'privacy.body7': 'For any questions about personal data, email lev2009177@gmail.com — the same address listed in the site footer.',
 };
 
 const dictionaries: Record<Language, Dict> = { ru, en };

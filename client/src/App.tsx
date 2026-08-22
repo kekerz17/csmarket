@@ -6,6 +6,7 @@ import Profile from './pages/Profile';
 import OrderStatus from './pages/OrderStatus';
 import DepositStatus from './pages/DepositStatus';
 import Faq from './pages/Faq';
+import Privacy from './pages/Privacy';
 import Cart from './pages/Cart';
 import Sell from './pages/Sell';
 import AdminLogin from './pages/admin/Login';
@@ -281,6 +282,7 @@ export default function App() {
           <Route path="/order/:id" element={<OrderStatus />} />
           <Route path="/deposit/:id" element={<DepositStatus />} />
           <Route path="/faq" element={<Faq />} />
+          <Route path="/privacy" element={<Privacy />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/sell" element={<Sell />} />
           <Route path="/admin" element={<AdminLogin />} />
@@ -303,6 +305,9 @@ export default function App() {
             </a>
             <Link to="/faq" className="text-neutral-400 hover:text-emerald-400 transition-colors">
               FAQ
+            </Link>
+            <Link to="/privacy" className="text-neutral-400 hover:text-emerald-400 transition-colors">
+              {t('footer.privacy')}
             </Link>
           </div>
         </div>
