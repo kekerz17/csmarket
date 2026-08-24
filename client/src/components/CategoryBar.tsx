@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { api, CategoryCount } from '../api';
+import { api, CategoryCount, WeaponGroup } from '../api';
 import { useLanguage } from '../context/LanguageContext';
 import { translate } from '../i18n';
 
@@ -102,6 +102,7 @@ const PRIMARY = [
 interface DropdownItem {
   label: string;
   to: string;
+  iconUrl?: string;
 }
 
 interface OpenDropdown {
@@ -113,7 +114,7 @@ interface OpenDropdown {
 
 export default function CategoryBar() {
   const { language } = useLanguage();
-  const [groups, setGroups] = useState<Record<string, string[]>>({});
+  const [groups, setGroups] = useState<Record<string, WeaponGroup[]>>({});
   const [categories, setCategories] = useState<CategoryCount[]>([]);
   const [open, setOpen] = useState<OpenDropdown | null>(null);
 
@@ -172,8 +173,9 @@ export default function CategoryBar() {
         {entries.map(({ tag, Icon }) => {
           const weapons = groups[tag] ?? [];
           const items: DropdownItem[] = weapons.map((weapon) => ({
-            label: weapon,
-            to: `/?category=${encodeURIComponent(tag)}&search=${encodeURIComponent(weapon)}`,
+            label: weapon.name,
+            iconUrl: weapon.iconUrl,
+            to: `/?category=${encodeURIComponent(tag)}&search=${encodeURIComponent(weapon.name)}`,
           }));
           return (
             <button
@@ -243,8 +245,9 @@ export default function CategoryBar() {
               key={item.label}
               to={item.to}
               onClick={() => setOpen(null)}
-              className="block px-3 py-2 text-sm text-neutral-300 hover:bg-white/5 hover:text-white transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-300 hover:bg-white/5 hover:text-white transition-colors"
             >
+              {item.iconUrl && <img src={item.iconUrl} alt="" className="w-7 h-7 object-contain shrink-0" />}
               {item.label}
             </Link>
           ))}

@@ -53,22 +53,44 @@ router.get('/meta/categories', async (_req, res) => {
 // только на широкую категорию целиком.
 const WEAPON_CATEGORIES = ['Knife', 'Pistol', 'Rifle', 'Sniper Rifle', 'SMG', 'Shotgun', 'Machinegun', 'Gloves'];
 
+// StatTrak™/Souvenir — это модификатор поверх того же оружия, а не отдельная
+// модель: "StatTrak™ Tec-9" и "Souvenir Tec-9" должны попадать в ту же группу
+// "Tec-9", иначе в выпадающем списке одно и то же оружие дублируется.
+function normalizeWeaponName(rawName: string): { weaponName: string; isPlainVariant: boolean } {
+  const isPlainVariant = !/^(StatTrak™|Souvenir)\b/.test(rawName);
+  const weaponName = rawName.replace(/^(StatTrak™\s*|Souvenir\s*)/, '').trim();
+  return { weaponName, isPlainVariant };
+}
+
 router.get('/meta/category-groups', async (_req, res) => {
   const items = await prisma.item.findMany({
     where: { listed: true, status: 'AVAILABLE', priceUsd: { not: null }, category: { in: WEAPON_CATEGORIES } },
-    select: { category: true, name: true },
+    select: { category: true, name: true, iconUrl: true },
   });
 
-  const groups: Record<string, Set<string>> = {};
+  // category -> weaponName -> iconUrl (картинка одного из скинов этого оружия
+  // как узнаваемая "иконка" для выпадающего списка — предпочитаем обычный
+  // вариант без StatTrak/Souvenir, если он есть, как более "базовый").
+  const groups: Record<string, Map<string, { iconUrl: string; isPlainVariant: boolean }>> = {};
   for (const item of items) {
-    const weaponName = item.name.split(' | ')[0]?.trim();
-    if (!item.category || !weaponName) continue;
-    (groups[item.category] ??= new Set()).add(weaponName);
+    if (!item.category) continue;
+    const rawFirst = item.name.split(' | ')[0]?.trim();
+    if (!rawFirst) continue;
+    const { weaponName, isPlainVariant } = normalizeWeaponName(rawFirst);
+    if (!weaponName) continue;
+
+    const map = (groups[item.category] ??= new Map());
+    const existing = map.get(weaponName);
+    if (!existing || (isPlainVariant && !existing.isPlainVariant)) {
+      map.set(weaponName, { iconUrl: item.iconUrl, isPlainVariant });
+    }
   }
 
-  const result: Record<string, string[]> = {};
-  for (const [cat, names] of Object.entries(groups)) {
-    result[cat] = Array.from(names).sort();
+  const result: Record<string, { name: string; iconUrl: string }[]> = {};
+  for (const [cat, map] of Object.entries(groups)) {
+    result[cat] = Array.from(map.entries())
+      .map(([name, { iconUrl }]) => ({ name, iconUrl }))
+      .sort((a, b) => a.name.localeCompare(b.name));
   }
   res.json(result);
 });
