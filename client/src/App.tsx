@@ -140,17 +140,17 @@ function CartLink() {
   );
 }
 
-function BuySellToggle() {
+function BuySellToggle({ className = '' }: { className?: string }) {
   const location = useLocation();
   const t = useT();
   const sellActive = location.pathname.startsWith('/sell');
 
-  const baseClass = 'px-4 py-1.5 text-sm font-semibold transition-colors';
+  const baseClass = 'flex-1 px-4 py-1.5 text-sm font-semibold text-center transition-colors';
   const activeClass = 'bg-gradient-to-r from-emerald-500 to-teal-500 text-neutral-950';
   const inactiveClass = 'text-neutral-400 hover:text-neutral-200';
 
   return (
-    <div className="hidden sm:flex items-center rounded-lg border border-white/10 overflow-hidden">
+    <div className={`flex items-center rounded-lg border border-white/10 overflow-hidden ${className}`}>
       <Link to="/" className={`${baseClass} ${sellActive ? inactiveClass : activeClass}`}>
         {t('header.buy')}
       </Link>
@@ -262,7 +262,7 @@ export default function App() {
             </span>
           </Link>
           <div className="flex items-center gap-4">
-            <BuySellToggle />
+            <BuySellToggle className="hidden sm:flex" />
             <LanguageSelector />
             <CurrencySelector />
             <CartLink />
@@ -271,6 +271,9 @@ export default function App() {
             </Link>
             <HeaderAuth />
           </div>
+        </div>
+        <div className="sm:hidden max-w-6xl mx-auto px-6 pb-3">
+          <BuySellToggle />
         </div>
       </header>
 
