@@ -153,6 +153,13 @@ export interface SellSettings {
   receivingTradeUrl: string;
 }
 
+// Публичная версия — без buybackPercent, владелец сайта считает процент
+// выкупа конфиденциальным и не показывает его напрямую покупателям.
+export interface PublicSellSettings {
+  minPriceUsd: number;
+  receivingTradeUrl: string;
+}
+
 export interface BotStatus {
   online: boolean;
   dryRun: boolean;
@@ -223,7 +230,7 @@ export const api = {
     request<{ orderId: string }>('/purchases', { method: 'POST', body: JSON.stringify({ assetId }) }),
 
   // --- Продажа своих скинов сайту -------------------------------------------
-  getSellSettings: () => request<SellSettings>('/settings/sell'),
+  getSellSettings: () => request<PublicSellSettings>('/settings/sell'),
   getSellableInventory: () => request<SellableItem[]>('/sell/inventory'),
   createSellOffer: (item: Pick<SellableItem, 'assetId' | 'marketHashName' | 'name' | 'iconUrl' | 'exterior'>) =>
     request<SellOrder>('/sell/offers', { method: 'POST', body: JSON.stringify(item) }),

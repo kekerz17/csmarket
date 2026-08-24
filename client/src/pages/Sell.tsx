@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { api, API_ORIGIN, SellableItem, SellOrder, SellSettings } from '../api';
+import { api, API_ORIGIN, SellableItem, SellOrder, PublicSellSettings } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { useT } from '../i18n';
@@ -58,7 +58,7 @@ export default function Sell() {
   const { format } = useCurrency();
   const t = useT();
 
-  const [settings, setSettings] = useState<SellSettings | null>(null);
+  const [settings, setSettings] = useState<PublicSellSettings | null>(null);
   const [items, setItems] = useState<SellableItem[] | null>(null);
   const [inventoryError, setInventoryError] = useState(false);
   const [sellingAssetId, setSellingAssetId] = useState<string | null>(null);
@@ -109,7 +109,7 @@ export default function Sell() {
       <h1 className="text-xl font-semibold mb-2">{t('sell.title')}</h1>
       {settings && (
         <p className="text-sm text-neutral-400 mb-6">
-          {t('sell.intro', { percent: settings.buybackPercent })} {t('sell.minPrice', { price: format(settings.minPriceUsd) })}
+          {t('sell.intro')} {t('sell.minPrice', { price: format(settings.minPriceUsd) })}
         </p>
       )}
 

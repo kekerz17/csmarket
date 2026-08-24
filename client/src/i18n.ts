@@ -152,7 +152,7 @@ const ru: Dict = {
 
   'sell.title': 'Продать скины',
   'sell.intro':
-    'Мы выкупаем ваши скины по {percent}% от рыночной цены. Деньги зачисляются на баланс сайта после того, как мы получим и проверим предмет — обычно это занимает несколько дней из-за trade hold Steam.',
+    'Мы выкупаем ваши скины по выгодной цене. Точную сумму за каждый предмет вы видите ниже перед продажей. Деньги зачисляются на баланс сайта после того, как мы получим и проверим предмет — обычно это занимает несколько дней из-за trade hold Steam.',
   'sell.minPrice': 'Принимаем предметы дороже {price}.',
   'sell.loginToSell': 'Войдите через Steam, чтобы увидеть свой инвентарь',
   'sell.loadingInventory': 'Загружаем ваш инвентарь Steam...',
@@ -354,7 +354,7 @@ const en: Dict = {
 
   'sell.title': 'Sell your skins',
   'sell.intro':
-    "We buy your skins for {percent}% of market price. The money is credited to your site balance once we receive and verify the item — usually within a few days because of Steam's trade hold.",
+    "We buy your skins for a competitive price. You'll see the exact payout for each item below before selling. The money is credited to your site balance once we receive and verify the item — usually within a few days because of Steam's trade hold.",
   'sell.minPrice': 'We accept items above {price}.',
   'sell.loginToSell': 'Log in with Steam to see your inventory',
   'sell.loadingInventory': 'Loading your Steam inventory...',

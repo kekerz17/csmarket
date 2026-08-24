@@ -7,10 +7,12 @@ router.get('/exchange-rates', async (_req, res) => {
   res.json(await getExchangeRates());
 });
 
-// Публично — условия выкупа нужно показать на странице продажи ещё до
-// входа через Steam (сколько платим и от какой суммы), это не секрет.
+// Публично — но процент выкупа (buybackPercent) намеренно не отдаём здесь:
+// владелец сайта считает его конфиденциальным. Минимальная цена и
+// trade-ссылка нужны на странице продажи ещё до входа через Steam.
 router.get('/sell', async (_req, res) => {
-  res.json(await getSellSettings());
+  const { minPriceUsd, receivingTradeUrl } = await getSellSettings();
+  res.json({ minPriceUsd, receivingTradeUrl });
 });
 
 export default router;
