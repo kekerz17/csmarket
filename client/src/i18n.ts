@@ -7,7 +7,6 @@ const ru: Dict = {
   'header.profile': 'Профиль',
   'header.logout': 'Выйти из аккаунта',
   'header.admin': 'Админ',
-  'footer.tagline': 'Girgich Store — предметы из личного инвентаря Steam',
   'footer.holdNote': 'Выдача автоматическая, трейд-холд зависит от настроек вашего аккаунта Steam',
 
   'recentSales.title': 'Последние сделки',
@@ -210,7 +209,6 @@ const en: Dict = {
   'header.profile': 'Profile',
   'header.logout': 'Log out',
   'header.admin': 'Admin',
-  'footer.tagline': 'Girgich Store — items from a personal Steam inventory',
   'footer.holdNote': "Delivery is automatic; trade hold depends on your Steam account's settings",
 
   'recentSales.title': 'Recent sales',

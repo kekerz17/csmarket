@@ -299,7 +299,6 @@ export default function App() {
 
       <footer className="border-t border-white/5 mt-12">
         <div className="max-w-6xl mx-auto px-6 py-6 text-xs text-neutral-600 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span>{t('footer.tagline')}</span>
           <OnlineCount />
           <span>{t('footer.holdNote')}</span>
           <div className="flex items-center gap-4 shrink-0">
