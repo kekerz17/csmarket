@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, CategoryCount } from '../api';
 import { useLanguage } from '../context/LanguageContext';
@@ -99,120 +99,157 @@ const PRIMARY = [
   { tag: 'Sticker', Icon: IconSticker },
 ];
 
+interface DropdownItem {
+  label: string;
+  to: string;
+}
+
+interface OpenDropdown {
+  key: string;
+  left: number;
+  top: number;
+  items: DropdownItem[];
+}
+
 export default function CategoryBar() {
   const { language } = useLanguage();
   const [groups, setGroups] = useState<Record<string, string[]>>({});
   const [categories, setCategories] = useState<CategoryCount[]>([]);
-  const [openTag, setOpenTag] = useState<string | null>(null);
-  const ref = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState<OpenDropdown | null>(null);
 
   useEffect(() => {
     api.getCategoryGroups().then(setGroups).catch(console.error);
     api.listCategories().then(setCategories).catch(console.error);
   }, []);
 
+  // Выпадающий список рендерится через position:fixed вне горизонтально
+  // прокручиваемой панели категорий — иначе overflow-x-auto на родителе
+  // обрезает его и по вертикали тоже (так работает CSS: overflow-y не может
+  // остаться "visible", если overflow-x не visible). Раз позиция вычисляется
+  // от кнопки на момент открытия, при скролле её нужно закрывать, а не
+  // пытаться пересчитывать на лету.
   useEffect(() => {
-    if (!openTag) return;
-    function onClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpenTag(null);
+    if (!open) return;
+    function close() {
+      setOpen(null);
     }
+    window.addEventListener('scroll', close, true);
+    window.addEventListener('resize', close);
     document.addEventListener('mousedown', onClickOutside);
-    return () => document.removeEventListener('mousedown', onClickOutside);
-  }, [openTag]);
+    function onClickOutside(e: MouseEvent) {
+      const target = e.target as HTMLElement;
+      if (!target.closest('[data-category-dropdown]') && !target.closest('[data-category-trigger]')) {
+        setOpen(null);
+      }
+    }
+    return () => {
+      window.removeEventListener('scroll', close, true);
+      window.removeEventListener('resize', close);
+      document.removeEventListener('mousedown', onClickOutside);
+    };
+  }, [open]);
+
+  function toggle(key: string, e: React.MouseEvent<HTMLButtonElement>, items: DropdownItem[]) {
+    if (open?.key === key) {
+      setOpen(null);
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    setOpen({ key, left: rect.left, top: rect.bottom + 4, items });
+  }
 
   const knownTags = new Set([...PRIMARY.map((p) => p.tag), ...OTHER_CATEGORIES]);
   const availableTags = new Set(categories.map((c) => c.category));
   const otherCategoriesPresent = categories.filter((c) => OTHER_CATEGORIES.includes(c.category));
   const extraUnknownCategories = categories.filter((c) => !knownTags.has(c.category));
-
   const entries = PRIMARY.filter((p) => availableTags.has(p.tag) || (groups[p.tag]?.length ?? 0) > 0);
 
   if (entries.length === 0 && otherCategoriesPresent.length === 0 && extraUnknownCategories.length === 0) return null;
 
   return (
     <div className="border-b border-white/5 bg-neutral-950/50">
-      <div ref={ref} className="max-w-6xl mx-auto px-6 flex items-center gap-1 overflow-x-auto text-sm">
+      <div className="max-w-6xl mx-auto px-6 flex items-center gap-1 overflow-x-auto text-sm">
         {entries.map(({ tag, Icon }) => {
           const weapons = groups[tag] ?? [];
+          const items: DropdownItem[] = weapons.map((weapon) => ({
+            label: weapon,
+            to: `/?category=${encodeURIComponent(tag)}&search=${encodeURIComponent(weapon)}`,
+          }));
           return (
-            <div key={tag} className="relative shrink-0">
-              <button
-                onClick={() => setOpenTag((v) => (v === tag ? null : tag))}
-                className="flex items-center gap-1.5 px-3 py-2.5 text-neutral-400 hover:text-neutral-100 transition-colors whitespace-nowrap"
-              >
-                <Icon />
-                <Link to={`/?category=${encodeURIComponent(tag)}`} onClick={(e) => e.stopPropagation()} className="hover:underline">
-                  {translate(language, `category.${tag}`)}
-                </Link>
-                {weapons.length > 0 && (
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    className={`w-3 h-3 transition-transform ${openTag === tag ? 'rotate-180' : ''}`}
-                  >
-                    <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                )}
-              </button>
-              {openTag === tag && weapons.length > 0 && (
-                <div className="absolute left-0 top-full z-20 w-56 max-h-80 overflow-y-auto rounded-lg border border-white/10 bg-neutral-900 shadow-xl shadow-black/40 py-1">
-                  {weapons.map((weapon) => (
-                    <Link
-                      key={weapon}
-                      to={`/?category=${encodeURIComponent(tag)}&search=${encodeURIComponent(weapon)}`}
-                      onClick={() => setOpenTag(null)}
-                      className="block px-3 py-2 text-neutral-300 hover:bg-white/5 hover:text-white transition-colors"
-                    >
-                      {weapon}
-                    </Link>
-                  ))}
-                </div>
+            <button
+              key={tag}
+              data-category-trigger
+              onClick={(e) => (weapons.length > 0 ? toggle(tag, e, items) : undefined)}
+              className="flex items-center gap-1.5 px-3 py-2.5 text-neutral-400 hover:text-neutral-100 transition-colors whitespace-nowrap shrink-0"
+            >
+              <Icon />
+              <Link to={`/?category=${encodeURIComponent(tag)}`} onClick={(e) => e.stopPropagation()} className="hover:underline">
+                {translate(language, `category.${tag}`)}
+              </Link>
+              {weapons.length > 0 && (
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  className={`w-3 h-3 transition-transform ${open?.key === tag ? 'rotate-180' : ''}`}
+                >
+                  <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
               )}
-            </div>
+            </button>
           );
         })}
 
         {(otherCategoriesPresent.length > 0 || extraUnknownCategories.length > 0) && (
-          <div className="relative shrink-0">
-            <button
-              onClick={() => setOpenTag((v) => (v === 'other' ? null : 'other'))}
-              className="flex items-center gap-1.5 px-3 py-2.5 text-neutral-400 hover:text-neutral-100 transition-colors whitespace-nowrap"
+          <button
+            data-category-trigger
+            onClick={(e) =>
+              toggle(
+                'other',
+                e,
+                [...otherCategoriesPresent, ...extraUnknownCategories].map((c) => {
+                  const key = `category.${c.category}`;
+                  const translated = translate(language, key);
+                  return { label: translated === key ? c.category : translated, to: `/?category=${encodeURIComponent(c.category)}` };
+                }),
+              )
+            }
+            className="flex items-center gap-1.5 px-3 py-2.5 text-neutral-400 hover:text-neutral-100 transition-colors whitespace-nowrap shrink-0"
+          >
+            <IconOther />
+            {translate(language, 'category.other')}
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              className={`w-3 h-3 transition-transform ${open?.key === 'other' ? 'rotate-180' : ''}`}
             >
-              <IconOther />
-              {translate(language, 'category.other')}
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                className={`w-3 h-3 transition-transform ${openTag === 'other' ? 'rotate-180' : ''}`}
-              >
-                <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-            {openTag === 'other' && (
-              <div className="absolute left-0 top-full z-20 w-56 rounded-lg border border-white/10 bg-neutral-900 shadow-xl shadow-black/40 py-1">
-                {[...otherCategoriesPresent, ...extraUnknownCategories].map((c) => (
-                  <Link
-                    key={c.category}
-                    to={`/?category=${encodeURIComponent(c.category)}`}
-                    onClick={() => setOpenTag(null)}
-                    className="block px-3 py-2 text-neutral-300 hover:bg-white/5 hover:text-white transition-colors"
-                  >
-                    {(() => {
-                      const key = `category.${c.category}`;
-                      const translated = translate(language, key);
-                      return translated === key ? c.category : translated;
-                    })()}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
+              <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
         )}
       </div>
+
+      {open && (
+        <div
+          data-category-dropdown
+          style={{ position: 'fixed', left: open.left, top: open.top }}
+          className="z-30 w-56 max-h-80 overflow-y-auto rounded-lg border border-white/10 bg-neutral-900 shadow-xl shadow-black/40 py-1"
+        >
+          {open.items.map((item) => (
+            <Link
+              key={item.label}
+              to={item.to}
+              onClick={() => setOpen(null)}
+              className="block px-3 py-2 text-sm text-neutral-300 hover:bg-white/5 hover:text-white transition-colors"
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
