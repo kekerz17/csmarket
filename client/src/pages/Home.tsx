@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { api, CategoryCount, Item, getDiscountPercent } from '../api';
 import ItemCard from '../components/ItemCard';
 import Filters from '../components/Filters';
@@ -16,11 +17,39 @@ export default function Home() {
   const [items, setItems] = useState<Item[]>([]);
   const [categories, setCategories] = useState<CategoryCount[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  // category и search живут в URL (?category=&search=), а не только в
+  // локальном состоянии — так на них может ссылаться внешняя навигация
+  // (например, панель категорий в шапке сайта), а не только сайдбар.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const category = searchParams.get('category');
+  const search = searchParams.get('search') ?? '';
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
-  const [category, setCategory] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<SortBy>('default');
+
+  function setCategory(next: string | null) {
+    setSearchParams(
+      (prev) => {
+        const params = new URLSearchParams(prev);
+        if (next) params.set('category', next);
+        else params.delete('category');
+        return params;
+      },
+      { replace: true },
+    );
+  }
+
+  function setSearch(next: string) {
+    setSearchParams(
+      (prev) => {
+        const params = new URLSearchParams(prev);
+        if (next) params.set('search', next);
+        else params.delete('search');
+        return params;
+      },
+      { replace: true },
+    );
+  }
 
   useEffect(() => {
     api.listCategories().then(setCategories).catch(console.error);

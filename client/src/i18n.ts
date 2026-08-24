@@ -57,6 +57,7 @@ const ru: Dict = {
   'category.Music Kit': 'Наборы музыки',
   'category.Patch': 'Патчи',
   'category.Key': 'Ключи',
+  'category.other': 'Другие',
 
   'item.backToAll': '← Ко всем предметам',
   'item.similar': 'Похожие предметы',
@@ -280,6 +281,7 @@ const en: Dict = {
   'category.Music Kit': 'Music Kits',
   'category.Patch': 'Patches',
   'category.Key': 'Keys',
+  'category.other': 'Other',
 
   'item.backToAll': '← All items',
   'item.similar': 'Similar items',

@@ -47,6 +47,32 @@ router.get('/meta/categories', async (_req, res) => {
   res.json(categories);
 });
 
+// Внутри категорий оружия ("Rifle", "Pistol"...) отдаём ещё и список
+// конкретных моделей ("AK-47", "M4A4"...) — чтобы панель категорий в шапке
+// могла показать выпадающий список и вести сразу на конкретное оружие, а не
+// только на широкую категорию целиком.
+const WEAPON_CATEGORIES = ['Knife', 'Pistol', 'Rifle', 'Sniper Rifle', 'SMG', 'Shotgun', 'Machinegun', 'Gloves'];
+
+router.get('/meta/category-groups', async (_req, res) => {
+  const items = await prisma.item.findMany({
+    where: { listed: true, status: 'AVAILABLE', priceUsd: { not: null }, category: { in: WEAPON_CATEGORIES } },
+    select: { category: true, name: true },
+  });
+
+  const groups: Record<string, Set<string>> = {};
+  for (const item of items) {
+    const weaponName = item.name.split(' | ')[0]?.trim();
+    if (!item.category || !weaponName) continue;
+    (groups[item.category] ??= new Set()).add(weaponName);
+  }
+
+  const result: Record<string, string[]> = {};
+  for (const [cat, names] of Object.entries(groups)) {
+    result[cat] = Array.from(names).sort();
+  }
+  res.json(result);
+});
+
 // Лента последних сделок для витрины (в стиле lis-skins/CS.MONEY) — только
 // реально завершённые заказы, без выдуманных чисел. Должен быть объявлен
 // раньше "/:assetId" по той же причине, что и "/meta/categories" выше.

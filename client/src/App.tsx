@@ -23,6 +23,7 @@ import { api, API_ORIGIN, clearUserToken } from './api';
 import { useOnlineCount } from './useOnlineCount';
 import { pluralRu } from './pluralRu';
 import RecentSales from './components/RecentSales';
+import CategoryBar from './components/CategoryBar';
 
 function FlagRu({ className }: { className?: string }) {
   return (
@@ -284,6 +285,8 @@ export default function App() {
           <BuySellToggle />
         </div>
       </header>
+
+      <CategoryBar />
 
       <main className="px-6 py-8 max-w-6xl mx-auto w-full flex-1">
         <Routes>

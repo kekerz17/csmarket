@@ -216,6 +216,7 @@ export const api = {
     return request<Item[]>(`/items${suffix}`);
   },
   listCategories: () => request<CategoryCount[]>('/items/meta/categories'),
+  getCategoryGroups: () => request<Record<string, string[]>>('/items/meta/category-groups'),
   getRecentSales: () => request<RecentSalesResponse>('/items/meta/recent-sales'),
   getExchangeRates: () => request<ExchangeRates>('/settings/exchange-rates'),
   heartbeat: (id: string) => request<{ online: number }>('/presence/heartbeat', { method: 'POST', body: JSON.stringify({ id }) }),
