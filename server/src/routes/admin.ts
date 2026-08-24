@@ -9,7 +9,14 @@ import { authCookieOptions } from '../lib/cookies.js';
 import { getBestMarketPrice } from '../services/pricing.js';
 import { warmSkinportCache, getSkinportPrice } from '../services/skinportPricing.js';
 import { getBotStatus, getFloat } from '../services/tradeBot.js';
-import { getExchangeRates, setExchangeRates, getSellSettings, setSellSettings } from '../lib/settings.js';
+import {
+  getExchangeRates,
+  setExchangeRates,
+  getSellSettings,
+  setSellSettings,
+  getReferralPercent,
+  setReferralPercent,
+} from '../lib/settings.js';
 
 const router = Router();
 
@@ -214,6 +221,20 @@ router.patch('/settings/sell', async (req, res) => {
   res.json(parsed.data);
 });
 
+router.get('/settings/referral', async (_req, res) => {
+  res.json({ percent: await getReferralPercent() });
+});
+
+router.patch('/settings/referral', async (req, res) => {
+  const parsed = z.object({ percent: z.number().min(0).max(100) }).safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.flatten() });
+    return;
+  }
+  await setReferralPercent(parsed.data.percent);
+  res.json(parsed.data);
+});
+
 router.get('/sell-orders', async (_req, res) => {
   const offers = await prisma.sellOrder.findMany({
     orderBy: { createdAt: 'desc' },
@@ -231,7 +252,7 @@ router.post('/sell-orders/:id/confirm', async (req, res) => {
     return;
   }
 
-  const offer = await prisma.sellOrder.findUnique({ where: { id: req.params.id } });
+  const offer = await prisma.sellOrder.findUnique({ where: { id: req.params.id }, include: { user: true } });
   if (!offer) {
     res.status(404).json({ error: 'Не найдено' });
     return;
@@ -245,10 +266,32 @@ router.post('/sell-orders/:id/confirm', async (req, res) => {
     // Деньги зачисляются только сейчас, после того как владелец сайта сам
     // убедился, что предмет реально дошёл (пережил trade hold и т.п.) —
     // намеренно не раньше, см. комментарий у модели SellOrder.
-    const [updated] = await prisma.$transaction([
+    const ops: any[] = [
       prisma.sellOrder.update({ where: { id: offer.id }, data: { status: 'COMPLETED' } }),
       prisma.user.update({ where: { id: offer.userId }, data: { balanceUsd: { increment: offer.payoutUsd } } }),
-    ]);
+    ];
+
+    // Реферальная комиссия — приглашающий получает процент от выплаты за
+    // продажу приглашённого пользователя (см. lib/settings.ts).
+    if (offer.user.referredById) {
+      const referralPercent = await getReferralPercent();
+      const commissionUsd = Math.round(offer.payoutUsd * (referralPercent / 100) * 100) / 100;
+      if (commissionUsd > 0) {
+        ops.push(
+          prisma.user.update({ where: { id: offer.user.referredById }, data: { balanceUsd: { increment: commissionUsd } } }),
+          prisma.referralEarning.create({
+            data: {
+              referrerId: offer.user.referredById,
+              referredUserId: offer.userId,
+              sellOrderId: offer.id,
+              amountUsd: commissionUsd,
+            },
+          }),
+        );
+      }
+    }
+
+    const [updated] = await prisma.$transaction(ops);
     res.json(updated);
     return;
   }

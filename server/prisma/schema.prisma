@@ -57,11 +57,33 @@ model User {
   avatarUrl   String
   tradeUrl    String?
   balanceUsd  Float     @default(0)
+  // Короткий код для реферальной ссылки (?ref=...) — генерируется один раз
+  // при создании аккаунта. referredById проставляется один раз, при первом
+  // входе по чужой реферальной ссылке, и дальше не меняется (см. auth.ts).
+  referralCode String   @unique
+  referredById String?
+  referredBy   User?    @relation("Referrals", fields: [referredById], references: [id])
+  referrals    User[]   @relation("Referrals")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   orders      Order[]
   deposits    Deposit[]
   sellOrders  SellOrder[]
+  referralEarnings ReferralEarning[] @relation("ReferrerEarnings")
+}
+
+// Начисление рефереру за завершённую продажу приглашённого им пользователя
+// (см. SellOrder ниже) — процент задаётся в админке (Setting) и может
+// меняться со временем, поэтому фиксируем сумму на момент начисления.
+model ReferralEarning {
+  id             String    @id @default(cuid())
+  referrer       User      @relation("ReferrerEarnings", fields: [referrerId], references: [id])
+  referrerId     String
+  referredUserId String
+  sellOrder      SellOrder @relation(fields: [sellOrderId], references: [id])
+  sellOrderId    String    @unique
+  amountUsd      Float
+  createdAt      DateTime  @default(now())
 }
 
 // status: PENDING | COMPLETED | FAILED | EXPIRED
@@ -128,4 +150,5 @@ model SellOrder {
   adminNote      String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  referralEarning ReferralEarning?
 }

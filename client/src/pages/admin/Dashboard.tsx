@@ -124,6 +124,49 @@ function SellSettingsForm() {
   );
 }
 
+function ReferralSettingsForm() {
+  const [percent, setPercent] = useState<number | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    api.adminGetReferralPercent().then((r) => setPercent(r.percent)).catch(console.error);
+  }, []);
+
+  async function save() {
+    if (percent == null) return;
+    setSaved(false);
+    await api.adminSetReferralPercent(percent);
+    setSaved(true);
+  }
+
+  if (percent == null) return null;
+
+  return (
+    <div className="rounded-xl border border-white/5 bg-neutral-900/60 p-4 mb-6 flex items-center gap-4 text-sm">
+      <span className="text-neutral-400">Реферальная комиссия:</span>
+      <label className="flex items-center gap-1.5">
+        %{' '}
+        <input
+          type="number"
+          min={0}
+          max={100}
+          value={percent}
+          onChange={(e) => {
+            setSaved(false);
+            setPercent(Number(e.target.value));
+          }}
+          className="w-16 rounded bg-neutral-950 border border-neutral-800 px-2 py-1"
+        />
+      </label>
+      <span className="text-neutral-500 text-xs">от суммы, выплаченной приглашённому за проданный скин</span>
+      <button onClick={save} className="text-xs px-3 py-1.5 rounded bg-neutral-800 hover:bg-neutral-700">
+        Сохранить
+      </button>
+      {saved && <span className="text-emerald-400 text-xs">Сохранено</span>}
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const [items, setItems] = useState<Item[]>([]);
   const [bot, setBot] = useState<BotStatus | null>(null);
@@ -230,6 +273,7 @@ export default function AdminDashboard() {
 
       <ExchangeRateSettings />
       <SellSettingsForm />
+      <ReferralSettingsForm />
 
       <table className="w-full text-sm">
         <thead className="text-neutral-400 text-left">

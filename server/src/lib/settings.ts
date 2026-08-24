@@ -78,3 +78,21 @@ export async function setSellSettings(settings: SellSettings): Promise<void> {
     }),
   ]);
 }
+
+// Реферальная программа: процент, который приглашающий получает от суммы,
+// выплаченной приглашённому пользователю за проданный сайту скин (см.
+// admin.ts — начисление происходит в момент подтверждения SellOrder).
+const DEFAULT_REFERRAL_PERCENT = 2;
+
+export async function getReferralPercent(): Promise<number> {
+  const row = await prisma.setting.findUnique({ where: { key: 'referral_percent' } });
+  return row ? Number(row.value) : DEFAULT_REFERRAL_PERCENT;
+}
+
+export async function setReferralPercent(percent: number): Promise<void> {
+  await prisma.setting.upsert({
+    where: { key: 'referral_percent' },
+    create: { key: 'referral_percent', value: String(percent) },
+    update: { value: String(percent) },
+  });
+}

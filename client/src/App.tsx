@@ -7,6 +7,7 @@ import OrderStatus from './pages/OrderStatus';
 import DepositStatus from './pages/DepositStatus';
 import Faq from './pages/Faq';
 import Privacy from './pages/Privacy';
+import Referral from './pages/Referral';
 import Cart from './pages/Cart';
 import Sell from './pages/Sell';
 import AdminLogin from './pages/admin/Login';
@@ -222,6 +223,13 @@ function HeaderAuth() {
           >
             {t('header.profile')}
           </Link>
+          <Link
+            to="/referral"
+            onClick={() => setOpen(false)}
+            className="block px-3 py-2 text-neutral-300 hover:bg-white/5 hover:text-white transition-colors"
+          >
+            {t('header.referral')}
+          </Link>
           <button
             onClick={logout}
             className="w-full text-left px-3 py-2 text-red-400 hover:bg-red-950/40 transition-colors"
@@ -286,6 +294,7 @@ export default function App() {
           <Route path="/deposit/:id" element={<DepositStatus />} />
           <Route path="/faq" element={<Faq />} />
           <Route path="/privacy" element={<Privacy />} />
+          <Route path="/referral" element={<Referral />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/sell" element={<Sell />} />
           <Route path="/admin" element={<AdminLogin />} />

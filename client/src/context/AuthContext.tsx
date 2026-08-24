@@ -15,6 +15,29 @@ function consumeTokenFromUrl() {
   window.history.replaceState(null, '', url.toString());
 }
 
+const REF_STORAGE_KEY = 'pending_ref_code';
+
+// Реферальную ссылку (?ref=код) может открыть кто угодно, ещё не войдя в
+// аккаунт — код нужно запомнить и применить уже после входа через Steam
+// (сам OpenID-редирект на steamcommunity.com и обратно не сохраняет query-
+// параметры фронтенда, поэтому localStorage — самый простой надёжный способ
+// пронести код через весь цикл логина).
+function captureReferralFromUrl() {
+  const url = new URL(window.location.href);
+  const ref = url.searchParams.get('ref');
+  if (!ref) return;
+  localStorage.setItem(REF_STORAGE_KEY, ref);
+  url.searchParams.delete('ref');
+  window.history.replaceState(null, '', url.toString());
+}
+
+function applyPendingReferral() {
+  const code = localStorage.getItem(REF_STORAGE_KEY);
+  if (!code) return;
+  localStorage.removeItem(REF_STORAGE_KEY);
+  api.applyReferral(code).catch(() => {});
+}
+
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
@@ -31,12 +54,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     api
       .me()
-      .then(setUser)
+      .then((u) => {
+        setUser(u);
+        applyPendingReferral();
+      })
       .catch(() => setUser(null))
       .finally(() => setLoading(false));
   }
 
   useEffect(() => {
+    captureReferralFromUrl();
     consumeTokenFromUrl();
     refresh();
   }, []);

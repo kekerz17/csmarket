@@ -160,6 +160,21 @@ export interface PublicSellSettings {
   receivingTradeUrl: string;
 }
 
+export interface ReferralEntry {
+  steamId64: string;
+  personaName: string;
+  joinedAt: string;
+  earnedUsd: number;
+}
+
+export interface ReferralStats {
+  percent: number;
+  totalEarnedUsd: number;
+  referredCount: number;
+  referralLink: string;
+  referrals: ReferralEntry[];
+}
+
 export interface BotStatus {
   online: boolean;
   dryRun: boolean;
@@ -216,6 +231,10 @@ export const api = {
   updateTradeUrl: (tradeUrl: string) =>
     request<User>('/auth/me/trade-url', { method: 'PATCH', body: JSON.stringify({ tradeUrl }) }),
   myOrders: () => request<Order[]>('/auth/me/orders'),
+  applyReferral: (code: string) => request<User>('/auth/apply-referral', { method: 'POST', body: JSON.stringify({ code }) }),
+
+  // --- Реферальная программа -------------------------------------------------
+  getReferralStats: () => request<ReferralStats>('/referrals/stats'),
 
   // --- Баланс/депозиты -----------------------------------------------------
   createDeposit: (amountUsd: number) =>
@@ -261,4 +280,7 @@ export const api = {
   adminListSellOrders: () => request<SellOrder[]>('/admin/sell-orders'),
   adminConfirmSellOrder: (id: string, action: 'received' | 'rejected') =>
     request<SellOrder>(`/admin/sell-orders/${id}/confirm`, { method: 'POST', body: JSON.stringify({ action }) }),
+  adminGetReferralPercent: () => request<{ percent: number }>('/admin/settings/referral'),
+  adminSetReferralPercent: (percent: number) =>
+    request<{ percent: number }>('/admin/settings/referral', { method: 'PATCH', body: JSON.stringify({ percent }) }),
 };

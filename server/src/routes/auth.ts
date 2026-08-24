@@ -13,6 +13,10 @@ const router = Router();
 
 const USER_COOKIE_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 дней
 
+function generateReferralCode(): string {
+  return crypto.randomBytes(5).toString('hex');
+}
+
 function issueSession(res: import('express').Response, userId: string): string {
   const token = jwt.sign({ sub: userId }, env.user.jwtSecret, { expiresIn: '30d' });
   res.cookie('user_token', token, authCookieOptions(USER_COOKIE_MAX_AGE));
@@ -33,7 +37,7 @@ if (env.steam.apiKey) {
 
       const user = await prisma.user.upsert({
         where: { steamId64 },
-        create: { steamId64, personaName, avatarUrl },
+        create: { steamId64, personaName, avatarUrl, referralCode: generateReferralCode() },
         update: { personaName, avatarUrl },
       });
 
@@ -62,6 +66,7 @@ if (env.steam.apiKey) {
         steamId64: fakeSteamId64,
         personaName: parsed.data.personaName,
         avatarUrl: `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(parsed.data.personaName)}`,
+        referralCode: generateReferralCode(),
       },
       update: {},
     });
@@ -97,6 +102,36 @@ router.patch('/me/trade-url', userAuth, async (req, res) => {
     data: { tradeUrl: parsed.data.tradeUrl },
   });
   res.json(user);
+});
+
+// Применяется один раз: если пользователь ещё ни разу не был привязан к
+// рефереру, привязываем по коду из ссылки (?ref=...). Дальше это уже нельзя
+// сменить — иначе можно было бы "перехватывать" чужих старых пользователей.
+router.post('/apply-referral', userAuth, async (req, res) => {
+  const parsed = z.object({ code: z.string().min(1).max(50) }).safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.flatten() });
+    return;
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: req.userId } });
+  if (!user) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
+  if (user.referredById) {
+    res.json(user);
+    return;
+  }
+
+  const referrer = await prisma.user.findUnique({ where: { referralCode: parsed.data.code } });
+  if (!referrer || referrer.id === user.id) {
+    res.json(user);
+    return;
+  }
+
+  const updated = await prisma.user.update({ where: { id: user.id }, data: { referredById: referrer.id } });
+  res.json(updated);
 });
 
 router.get('/me/orders', userAuth, async (req, res) => {
