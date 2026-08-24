@@ -257,7 +257,7 @@ export default function App() {
       <header className="sticky top-0 z-10 border-b border-white/5 bg-neutral-950/70 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="group">
-            <span className="inline-block px-3.5 py-1.5 rounded-lg bg-gradient-to-br from-emerald-400 to-sky-500 text-neutral-950 font-black text-lg tracking-tight shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+            <span className="inline-block px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-lg bg-gradient-to-br from-emerald-400 to-sky-500 text-neutral-950 font-black text-sm sm:text-lg tracking-tight shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
               Girgich Store
             </span>
           </Link>
